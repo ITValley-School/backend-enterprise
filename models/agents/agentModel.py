@@ -131,6 +131,8 @@ class AgentProjectDesigner(BaseAgent):
         3. Sempre responda **exclusivamente com JSON**, sem explicações nem comentários.
         4. Utilize estimativas realistas para o tempo estimado de cada tarefa.
         5. Os critérios de aceitação devem ser claros, objetivos e específicos.
+        6. As descrições devem ser detalhadas o suficiente para que um desenvolvedor entenda o que precisa ser feito.
+        7 Se tiver dados a serem salvos em banco de dados, sugerida campos, como o texto "campos sugeridos para salvar no banco de dados".
 
         Exemplo de requisito do cliente:
         "Quero um sistema de reservas de hotel onde o cliente veja quartos disponíveis e faça a reserva."
