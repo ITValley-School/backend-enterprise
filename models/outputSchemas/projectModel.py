@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel
 
 class Tarefa(BaseModel):
@@ -14,3 +14,17 @@ class Entregavel(BaseModel):
 class Projeto(BaseModel):
     projeto: str
     entregaveis: List[Entregavel]
+
+class RequirementDocument(BaseModel):
+    title: str
+    content: str
+
+class SubMenuItem(BaseModel):
+    name: str
+
+class MenuItem(BaseModel):
+    name: str
+    submenus: List[SubMenuItem] = []
+
+class ProjectStructure(BaseModel):
+    main_menu: List[MenuItem]

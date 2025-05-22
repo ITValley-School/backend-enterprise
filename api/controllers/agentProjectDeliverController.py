@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from services.agenteProjectDeliverServices import gerar_estrutura_projeto  # ajuste o path conforme sua estrutura
-from models.outputSchemas.projectModel import Projeto
+from services.agenteProjectDeliverServices import generate_project_menus, generate_requirement_document, gerar_estrutura_projeto
+from models.outputSchemas.projectModel import ProjectStructure, Projeto, RequirementDocument
 
 router = APIRouter()
 
@@ -18,3 +18,18 @@ async def gerar_projeto(prompt_input: PromptInput):
         return projeto
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao gerar estrutura do projeto: {str(e)}")
+
+@router.post("/requirement-documents/generate", response_model=RequirementDocument)
+async def generate_requirement(prompt_input: PromptInput):
+    try:
+        return await generate_requirement_document(prompt_input.prompt)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error generating requirement document: {str(e)}")
+
+
+@router.post("/project-structure/generate", response_model=ProjectStructure)
+async def generate_menus(prompt_input: PromptInput):
+    try:
+        return await generate_project_menus(prompt_input.prompt)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error generating project structure: {str(e)}")
