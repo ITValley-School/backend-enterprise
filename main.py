@@ -1,22 +1,35 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from api.routes import setup_routes
-import os
 from dotenv import load_dotenv
+import logging
+import os
+
+from api.v1.routes import setup_routes
+from db.init_db import test_db_connection
+
+# Carrega variáveis de ambiente
 load_dotenv()
 
+# Configura logs
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+logging.getLogger("azure").setLevel(logging.WARNING)
+
+# Inicializa FastAPI
 app = FastAPI()
 
+# Testa conexão com banco
+test_db_connection()
+
+# Registra rotas
 setup_routes(app)
 
-
-#Configurações de CORS
+# Configura CORS
 def get_cors_origins():
-        origins = os.getenv('CORS_ORIGINS')
-        if origins:
-            return [origin.strip() for origin in origins.split(',')]
-        return []
-
+    origins = os.getenv('CORS_ORIGINS')
+    if origins:
+        return [origin.strip() for origin in origins.split(',')]
+    return []
 
 app.add_middleware(
     CORSMiddleware,

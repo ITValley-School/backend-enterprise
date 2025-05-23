@@ -1,12 +1,8 @@
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from services.agenteProjectDeliverServices import generate_project_menus, generate_requirement_document, gerar_estrutura_projeto
-from models.outputSchemas.projectModel import ProjectStructure, Projeto, RequirementDocument
+from api.v1.services.agent_project_delivery_service import generate_project_menus, generate_requirement_document, gerar_estrutura_projeto
+from api.v1.schemas.project_schema import ProjectStructure, Projeto, PromptInput, RequirementDocument
 
 router = APIRouter()
-
-class PromptInput(BaseModel):
-    prompt: str
 
 @router.post("/projeto/gerar", response_model=Projeto)
 async def gerar_projeto(prompt_input: PromptInput):

@@ -1,7 +1,3 @@
-
-
-
-
 class BaseAgent:
     """Classe base para todos os agentes"""
     def __init__(self):

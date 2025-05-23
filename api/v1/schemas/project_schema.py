@@ -28,3 +28,16 @@ class MenuItem(BaseModel):
 
 class ProjectStructure(BaseModel):
     main_menu: List[MenuItem]
+
+class CompleteProjectInput(BaseModel):
+    user_id: str
+    project_name: str
+    requirements_html: str
+    menus: list
+    deliverables: list
+
+class UpdateProjectInput(BaseModel):
+    name: str
+
+class PromptInput(BaseModel):
+    prompt: str

@@ -7,8 +7,8 @@ from agents import Agent, Runner, set_default_openai_key
 # Usando importações relativas
 import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from models.agents.agentModel import AgentAssistant, AgentCatalog, AgentEmail
-from models.functions.toolsModel import AgentTools
+from api.v1.schemas.agent_schema import AgentAssistant, AgentCatalog, AgentEmail
+from api.v1.services.agent_tool import AgentTools
 
 # Configuração básica de logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

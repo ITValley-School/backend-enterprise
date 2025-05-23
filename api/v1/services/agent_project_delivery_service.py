@@ -2,8 +2,8 @@ from agents import Agent, Runner, set_default_openai_key, ModelSettings, functio
 import os
 from dotenv import load_dotenv
 import logging
-from models.outputSchemas.projectModel import MenuItem, ProjectStructure, Projeto, RequirementDocument, SubMenuItem
-from models.agents.agentModel import AgentProjectCreateMenu, AgentProjectDesigner, AgentRequirementAnalyst
+from api.v1.schemas.project_schema import MenuItem, ProjectStructure, Projeto, RequirementDocument, SubMenuItem
+from api.v1.schemas.agent_schema import AgentProjectCreateMenu, AgentProjectDesigner, AgentRequirementAnalyst
 import markdown
 import re
 
