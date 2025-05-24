@@ -1,9 +1,10 @@
 from fastapi import APIRouter, HTTPException, Path
-from api.v1.schemas.project_schema import CompleteProjectInput, UpdateProjectInput
+from api.v1.schemas.project_schema import CompleteProjectInput, ProjectResponse, UpdateProjectInput
 from api.v1.services.project_service import (
     delete_project_service,
     get_project_service,
     list_projects_service,
+    list_user_projects,
     publish_project_service,
     update_project_service
 )
@@ -47,3 +48,11 @@ async def delete_project_route(project_id: int):
         return await delete_project_service(project_id)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/user/{user_id}", response_model=list[ProjectResponse])
+async def get_projects_by_user_id(user_id: str):
+    try:
+        projects = await list_user_projects(user_id)
+        return projects
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

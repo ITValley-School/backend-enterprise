@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Text, Float, ForeignKey
 from sqlalchemy.orm import relationship
 from db.base import Base
 
+
 class Deliverable(Base):
     __tablename__ = "deliverables"
     __table_args__ = {"schema": "tkse"}
@@ -24,7 +25,12 @@ class Task(Base):
     deliverable_id = Column(Integer, ForeignKey("tkse.deliverables.id"))
 
     deliverable = relationship("Deliverable", back_populates="tasks")
-    acceptance_criteria = relationship("AcceptanceCriteria", back_populates="task")
+    acceptance_criteria = relationship(
+        "AcceptanceCriteria",
+        back_populates="task",
+        cascade="all, delete-orphan",
+        single_parent=True
+    )
 
 class AcceptanceCriteria(Base):
     __tablename__ = "acceptance_criteria"

@@ -3,6 +3,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from db.models.project import Project
 from db.models.task import AcceptanceCriteria, Deliverable, Task
 from db.session import SessionLocal
+from sqlalchemy.orm import joinedload
 
 async def save_project_to_sql(project_name: str, deliverables: list, user_id: str, blob_path: str):
     db = SessionLocal()
@@ -78,5 +79,16 @@ async def delete_project(project_id: int) -> bool:
         db.delete(project)
         db.commit()
         return True
+    finally:
+        db.close()
+
+def get_projects_by_user(user_id: str):
+    db = SessionLocal()
+    try:
+        return db.query(Project).options(
+            joinedload(Project.deliverables)
+            .joinedload(Deliverable.tasks)
+            .joinedload(Task.acceptance_criteria)
+        ).filter(Project.user_id == user_id).all()
     finally:
         db.close()

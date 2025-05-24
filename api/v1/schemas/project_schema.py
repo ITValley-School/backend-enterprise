@@ -1,5 +1,8 @@
+from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel
+
+
 
 class Tarefa(BaseModel):
     nome: str
@@ -41,3 +44,40 @@ class UpdateProjectInput(BaseModel):
 
 class PromptInput(BaseModel):
     prompt: str
+
+class AcceptanceCriteriaSchema(BaseModel):
+    description: str
+
+    model_config = {
+        "from_attributes": True
+    }
+
+class TaskSchema(BaseModel):
+    name: str
+    description: str
+    estimated_time: Optional[float]
+    acceptance_criteria: List[AcceptanceCriteriaSchema]
+
+    model_config = {
+        "from_attributes": True
+    }
+
+class DeliverableSchema(BaseModel):
+    name: str
+    tasks: List[TaskSchema]
+
+    model_config = {
+        "from_attributes": True
+    }
+
+class ProjectResponse(BaseModel):
+    id: int
+    name: str
+    user_id: str
+    blob_path: str
+    created_at: datetime
+    deliverables: List[DeliverableSchema]
+
+    model_config = {
+        "from_attributes": True
+    }

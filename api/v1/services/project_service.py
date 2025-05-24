@@ -4,6 +4,7 @@ import datetime
 from azure.core.exceptions import ResourceExistsError
 from azure.storage.blob.aio import BlobServiceClient
 from api.v1.repository.project_repository import (
+    get_projects_by_user,
     save_project_to_sql,
     get_all_projects,
     get_project_by_id,
@@ -70,3 +71,6 @@ async def update_project_service(project_id: int, update_data: dict):
 # Deleta um projeto
 async def delete_project_service(project_id: int):
     return await delete_project(project_id)
+
+async def list_user_projects(user_id: str):
+    return get_projects_by_user(user_id)
