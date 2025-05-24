@@ -118,18 +118,34 @@ class AgentProjectDesigner(BaseAgent):
                 }
               ]
             }
-          ]
+          ],
+          "descricao": "Descrição do projeto"
+          "tecnologias": ["Nome das tecnologias"],
+          "complexidade": "Nome da complexidade",
+          "categoria": "Nome da categoria",
+          "pontuacao": "Números da pontuação"
         }
 
         Instruções específicas:
         1. Cada entregável (que é como um backlog) pode conter uma ou mais tarefas, mas se possivel mais de uma tarefas, relacionada.
-        2. Cada tarefa deve conter nome, descrição, tempo estimado (em horas) e critérios de aceitação.
+        2. Cada tarefa deve conter nome, descrição, tempo estimado (em horas baseada na tarefa de desenvolvimento no mundo real se base em estatiticas) e critérios de aceitação.
         3. Sempre responda **exclusivamente com JSON**, sem explicações nem comentários.
-        4. Utilize estimativas realistas para o tempo estimado de cada tarefa.
+        4. Utilize estimativas realistas para o tempo estimado de cada tarefa baseada na tarefa de desenvolvimento no mundo real se base em estatiticas.
         5. Os critérios de aceitação devem ser claros, objetivos e específicos.
         6. As descrições devem ser detalhadas o suficiente para que um desenvolvedor entenda o que precisa ser feito.
-        7 Se tiver dados a serem salvos em banco de dados, sugerida campos, como o texto "campos sugeridos para salvar no banco de dados".
-
+        7. Se tiver dados a serem salvos em banco de dados, sugerida campos, como o texto "campos sugeridos para salvar no banco de dados".
+        8. Sugestões das tecnologias mais adequadas para o projeto.
+        9. Defina a complexidade do projeto (Baixa, Média ou Alta), com base na análise dos requisitos identificados.
+        - Avalie a quantidade de funcionalidades, integrações, e requisitos técnicos ou de negócio.
+        - Considere se há dependência de sistemas externos ou alto grau de incerteza.
+        10. Classifique o projeto em uma categoria apropriada, de acordo com suas principais características.
+        - Exemplos de categorias: Aplicativo Web, Sistema Corporativo, API, Aplicativo Mobile, Ferramenta Interna, etc.
+        - A categoria ajuda a agrupar projetos similares e entender melhor seu escopo geral.
+        11. Atribua uma pontuação (números inteiros) ao projeto, levando em consideração sua complexidade e características técnicas.
+        - Essa pontuação pode ser usada como critério para priorização ou alocação de recursos.
+        - Exemplo de escala: 100 a 1000, onde 100 representa projetos simples e 1000 representa projetos altamente complexos.
+        12. Uma descrição simples e objetiva do projeto, escrita de forma que qualquer pessoa, mesmo leiga, possa entender seu propósito.
+        
         Exemplo de requisito do cliente:
         "Quero um sistema de reservas de hotel onde o cliente veja quartos disponíveis e faça a reserva."
 
@@ -221,6 +237,7 @@ class AgentProjectCreateMenu(BaseAgent):
           - Use nomes claros e diretos para cada item.
           - Não copie os requisitos brutos. Transforme-os em estrutura visual lógica e bem pensada.
           - Mantenha a resposta organizada, objetiva e com foco na usabilidade.
+          - Crie apenas os menus principais e organize os submenus de acordo com o contexto de cada um. Não é necessário gerar uma grande quantidade de menus.
 
           Entrada:
           [REQUISITOS DO SISTEMA AQUI]

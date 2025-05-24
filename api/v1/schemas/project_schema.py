@@ -17,6 +17,11 @@ class Entregavel(BaseModel):
 class Projeto(BaseModel):
     projeto: str
     entregaveis: List[Entregavel]
+    descricao: str
+    tecnologias: List[str]
+    complexidade: str
+    categoria: str
+    pontuacao: str
 
 class RequirementDocument(BaseModel):
     title: str
@@ -38,6 +43,11 @@ class CompleteProjectInput(BaseModel):
     requirements_html: str
     menus: list
     deliverables: list
+    description: str
+    technologies: List[str]
+    complexity: str
+    category: str
+    score: str
 
 class UpdateProjectInput(BaseModel):
     name: str
@@ -77,6 +87,11 @@ class ProjectResponse(BaseModel):
     blob_path: str
     created_at: datetime
     deliverables: List[DeliverableSchema]
+    description: str
+    technologies: List[str]
+    complexity: str
+    category: str
+    score: str
 
     model_config = {
         "from_attributes": True

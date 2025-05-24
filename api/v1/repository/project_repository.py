@@ -5,10 +5,29 @@ from db.models.task import AcceptanceCriteria, Deliverable, Task
 from db.session import SessionLocal
 from sqlalchemy.orm import joinedload
 
-async def save_project_to_sql(project_name: str, deliverables: list, user_id: str, blob_path: str):
+async def save_project_to_sql(
+    project_name: str, 
+    deliverables: list, 
+    user_id: str, 
+    blob_path: str, 
+    description: str,
+    technologies: list,
+    complexity: str,
+    category: str,
+    score: str):
+    
     db = SessionLocal()
     try:
-        project = Project(name=project_name, user_id=user_id, blob_path=blob_path)
+        project = Project(
+            name=project_name,
+            user_id=user_id,
+            blob_path=blob_path,
+            description=description,
+            technologies=technologies,
+            complexity=complexity,
+            category=category,
+            score=score
+        )
         db.add(project)
         db.flush()  # Para gerar o ID do projeto
 

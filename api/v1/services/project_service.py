@@ -51,7 +51,12 @@ async def publish_project_service(data):
         project_name=data.project_name,
         deliverables=data.deliverables,
         user_id=data.user_id,
-        blob_path=path_prefix
+        blob_path=path_prefix,
+        description=data.description,
+        technologies=data.technologies,
+        complexity=data.complexity,
+        category=data.category,
+        score=data.score
     )
 
     return path_prefix
