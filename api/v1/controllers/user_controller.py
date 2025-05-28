@@ -8,10 +8,10 @@ router = APIRouter()
 
 @router.post("/login", response_model=TokenResponse)
 async def login(data: LoginRequest):
-    user = get_user_by_username(data.username)
-    
+    user = get_user_by_email(data.email)
+
     if not user or not verify_password(data.password, user.hashed_password):
-        raise HTTPException(status_code=401, detail="Usuário ou senha inválidos")
+        raise HTTPException(status_code=401, detail="Invalid username or password")
 
     token_data = {"sub": str(user.id), "username": user.username}
     token = create_access_token(token_data)
