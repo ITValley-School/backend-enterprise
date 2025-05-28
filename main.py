@@ -5,7 +5,7 @@ import logging
 import os
 
 from api.v1.routes import setup_routes
-from db.init_db import test_db_connection
+from db.init_db import test_db_connection, create_all_tables
 
 # Carrega variáveis de ambiente
 load_dotenv()
@@ -17,6 +17,8 @@ logging.getLogger("azure").setLevel(logging.WARNING)
 
 # Inicializa FastAPI
 app = FastAPI()
+
+create_all_tables()
 
 # Testa conexão com banco
 test_db_connection()
