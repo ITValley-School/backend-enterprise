@@ -6,7 +6,7 @@ import uuid
 def create_student(db: Session, student: StudentCreate):
     db_student = Student(
         id=str(uuid.uuid4()),
-        full_name=student.full_name,
+        name=student.name,
         email=student.email,
         password=student.password,
         phone=student.phone,

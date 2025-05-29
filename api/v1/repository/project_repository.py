@@ -75,7 +75,10 @@ async def get_all_projects(db: Session) -> List[Project]:
 
 async def get_project_by_id(db: Session, project_id: int) -> Project:
     try:
-        project = db.query(Project).filter(Project.id == project_id).first()
+        project = db.query(Project).options(
+            joinedload(Project.deliverables)
+            .joinedload(Deliverable.tasks)
+            .joinedload(Task.acceptance_criteria)).filter(Project.id == project_id).first()
         if not project:
             raise NoResultFound("Project not found")
         return project
