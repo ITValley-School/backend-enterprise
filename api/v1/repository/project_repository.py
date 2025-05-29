@@ -14,7 +14,8 @@ async def save_project_to_sql(
     technologies: list,
     complexity: str,
     category: str,
-    score: str):
+    score: str,
+    country: str):
     
     db = SessionLocal()
     try:
@@ -26,7 +27,8 @@ async def save_project_to_sql(
             technologies=technologies,
             complexity=complexity,
             category=category,
-            score=score
+            score=score,
+            country=country
         )
         db.add(project)
         db.flush()  # Para gerar o ID do projeto

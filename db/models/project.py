@@ -20,5 +20,6 @@ class Project(Base):
     complexity = Column(String, nullable=False)
     category = Column(String, nullable=False)
     score = Column(String, nullable=False)
+    country = Column(String, nullable=False)
 
     deliverables = relationship(Deliverable, back_populates="project", cascade="all, delete-orphan")

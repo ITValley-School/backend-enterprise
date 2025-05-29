@@ -56,7 +56,8 @@ async def publish_project_service(data):
         technologies=data.technologies,
         complexity=data.complexity,
         category=data.category,
-        score=data.score
+        score=data.score,
+        country=data.country
     )
 
     return path_prefix

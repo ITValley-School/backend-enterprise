@@ -48,6 +48,7 @@ class CompleteProjectInput(BaseModel):
     complexity: str
     category: str
     score: str
+    country: str
 
 class UpdateProjectInput(BaseModel):
     name: str
@@ -92,6 +93,7 @@ class ProjectResponse(BaseModel):
     complexity: str
     category: str
     score: str
+    country: str
 
     model_config = {
         "from_attributes": True
