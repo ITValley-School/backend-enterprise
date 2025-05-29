@@ -6,32 +6,29 @@ from api.v1.schemas.user_schema import UserCreate, UserUpdate
 from db.session import SessionLocal
 from db.models.user import User
 from passlib.context import CryptContext
+from sqlalchemy.orm import Session
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-def get_user_by_id(user_id: int):
-    db = SessionLocal()
+def get_user_by_id(db: Session, user_id: int):
     try:
         return db.query(User).filter(User.id == user_id).first()
     finally:
         db.close()
 
-def get_user_by_username(username: str):
-    db = SessionLocal()
+def get_user_by_username(db: Session, username: str):
     try:
         return db.query(User).filter(User.username == username).first()
     finally:
         db.close()
 
-def get_user_by_email(email: str):
-    db = SessionLocal()
+def get_user_by_email(db: Session, email: str):
     try:
         return db.query(User).filter(User.email == email).first()
     finally:
         db.close()
         
-def create_user(user: UserCreate):
-    db = SessionLocal()
+def create_user(db: Session, user: UserCreate):
     try:
         existing_user = db.query(User).filter(User.username == user.username).first()
         if existing_user:
@@ -55,8 +52,7 @@ def create_user(user: UserCreate):
     finally:
         db.close()
 
-def update_user(user_id: UUID, data: UserUpdate) -> User:
-    db = SessionLocal()
+def update_user(db: Session, user_id: UUID, data: UserUpdate) -> User:
     try:
         user = db.query(User).filter(User.id == user_id).first()
         if not user:
@@ -90,8 +86,7 @@ def update_user(user_id: UUID, data: UserUpdate) -> User:
     finally:
         db.close()
 
-def delete_user(user_id: UUID) -> bool:
-    db = SessionLocal()
+def delete_user(db: Session, user_id: UUID) -> bool:
     try:
         user = db.query(User).filter(User.id == user_id, User.is_active == True).first()
         if not user:

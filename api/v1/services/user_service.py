@@ -5,6 +5,7 @@ from jose import jwt
 from datetime import datetime, timedelta, timezone
 import os
 from dotenv import load_dotenv
+from sqlalchemy.orm import Session
 
 from api.v1.repository.user_repository import delete_user, update_user
 from api.v1.schemas.user_schema import UserUpdate
@@ -26,13 +27,13 @@ def create_access_token(data: dict):
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-def update_user_service(user_id: UUID, data: UserUpdate):
-    user = update_user(user_id, data)
+def update_user_service(db: Session, user_id: UUID, data: UserUpdate):
+    user = update_user(db, user_id, data)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
-def delete_user_service(user_id: UUID):
-    success = delete_user(user_id)
+def delete_user_service(db: Session, user_id: UUID):
+    success = delete_user(db, user_id)
     if not success:
         raise HTTPException(status_code=404, detail="User not found")

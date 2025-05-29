@@ -1,6 +1,7 @@
 import os
 import json
 import datetime
+from sqlalchemy.orm import Session
 from azure.core.exceptions import ResourceExistsError
 from azure.storage.blob.aio import BlobServiceClient
 from api.v1.repository.project_repository import (
@@ -13,7 +14,7 @@ from api.v1.repository.project_repository import (
 )
 
 
-async def publish_project_service(data):
+async def publish_project_service(db: Session, data):
     connection_str = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
 
     async with BlobServiceClient.from_connection_string(connection_str) as blob_service_client:
@@ -48,6 +49,7 @@ async def publish_project_service(data):
 
     # Save project metadata and structure to SQL database
     await save_project_to_sql(
+        db,
         project_name=data.project_name,
         deliverables=data.deliverables,
         user_id=data.user_id,
@@ -63,20 +65,20 @@ async def publish_project_service(data):
     return path_prefix
 
 # Retorna todos os projetos
-async def list_projects_service():
-    return await get_all_projects()
+async def list_projects_service(db: Session):
+    return await get_all_projects(db)
 
 # Retorna um projeto por ID
-async def get_project_service(project_id: int):
-    return await get_project_by_id(project_id)
+async def get_project_service(db: Session, project_id: int):
+    return await get_project_by_id(db, project_id)
 
 # Atualiza um projeto
-async def update_project_service(project_id: int, update_data: dict):
-    return await update_project(project_id, update_data)
+async def update_project_service(db: Session, project_id: int, update_data: dict):
+    return await update_project(db, project_id, update_data)
 
 # Deleta um projeto
-async def delete_project_service(project_id: int):
-    return await delete_project(project_id)
+async def delete_project_service(db: Session, project_id: int):
+    return await delete_project(db, project_id)
 
-async def list_user_projects(user_id: str):
-    return get_projects_by_user(user_id)
+async def list_user_projects(db: Session, user_id: str):
+    return get_projects_by_user(db, user_id)

@@ -1,11 +1,15 @@
 from typing import List
+from fastapi import HTTPException
 from sqlalchemy.orm.exc import NoResultFound
 from db.models.project import Project
 from db.models.task import AcceptanceCriteria, Deliverable, Task
-from db.session import SessionLocal
+from sqlalchemy.orm import Session
 from sqlalchemy.orm import joinedload
 
+from db.models.user import User
+
 async def save_project_to_sql(
+    db: Session,
     project_name: str, 
     deliverables: list, 
     user_id: str, 
@@ -17,7 +21,6 @@ async def save_project_to_sql(
     score: str,
     country: str):
     
-    db = SessionLocal()
     try:
         project = Project(
             name=project_name,
@@ -30,6 +33,11 @@ async def save_project_to_sql(
             score=score,
             country=country
         )
+        
+        user = db.query(User).filter(User.id == project.user_id).first()
+        if not user:
+            raise HTTPException(status_code=400, detail="User not found.")
+        
         db.add(project)
         db.flush()  # Para gerar o ID do projeto
 
@@ -59,15 +67,13 @@ async def save_project_to_sql(
     finally:
         db.close()
 
-async def get_all_projects() -> List[Project]:
-    db = SessionLocal()
+async def get_all_projects(db: Session) -> List[Project]:
     try:
         return db.query(Project).all()
     finally:
         db.close()
 
-async def get_project_by_id(project_id: int) -> Project:
-    db = SessionLocal()
+async def get_project_by_id(db: Session, project_id: int) -> Project:
     try:
         project = db.query(Project).filter(Project.id == project_id).first()
         if not project:
@@ -76,8 +82,7 @@ async def get_project_by_id(project_id: int) -> Project:
     finally:
         db.close()
 
-async def update_project(project_id: int, new_name: str) -> Project:
-    db = SessionLocal()
+async def update_project(db: Session, project_id: int, new_name: str) -> Project:
     try:
         project = db.query(Project).filter(Project.id == project_id).first()
         if not project:
@@ -90,8 +95,7 @@ async def update_project(project_id: int, new_name: str) -> Project:
     finally:
         db.close()
 
-async def delete_project(project_id: int) -> bool:
-    db = SessionLocal()
+async def delete_project(db: Session, project_id: int) -> bool:
     try:
         project = db.query(Project).filter(Project.id == project_id).first()
         if not project:
@@ -103,8 +107,7 @@ async def delete_project(project_id: int) -> bool:
     finally:
         db.close()
 
-def get_projects_by_user(user_id: str):
-    db = SessionLocal()
+def get_projects_by_user(db: Session, user_id: str):
     try:
         return db.query(Project).options(
             joinedload(Project.deliverables)

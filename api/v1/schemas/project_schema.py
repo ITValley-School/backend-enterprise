@@ -82,7 +82,7 @@ class DeliverableSchema(BaseModel):
     }
 
 class ProjectResponse(BaseModel):
-    id: int
+    id: str
     name: str
     user_id: str
     blob_path: str
