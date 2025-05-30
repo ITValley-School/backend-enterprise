@@ -1,12 +1,13 @@
 from datetime import datetime, timezone
-from uuid import UUID
 from fastapi import HTTPException, status
 from sqlalchemy import and_
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, Session
+from passlib.context import CryptContext
+
 from api.v1.schemas.student_schema import StudentCreate, StudentUpdate
-from db.session import SessionLocal
 from db.models.student import Student
-from sqlalchemy.orm import Session
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def get_student_by_id(db: Session, student_id: str):
     return db.query(Student).filter(Student.id == student_id, Student.is_active == True).first()
@@ -28,10 +29,13 @@ def create_student(db: Session, student: StudentCreate):
                     detail="Email already exists",
                 )
     
+    # Criptografar a senha antes de salvar
+    hashed_password = pwd_context.hash(student.password)
+    
     db_student = Student(
         name=student.name,
         email=student.email,
-        password=student.password,
+        password=hashed_password,
         phone=student.phone,
         role=student.role,
         location=student.location,
@@ -67,7 +71,12 @@ def update_student(db: Session, student_id: str, data: StudentUpdate) -> Student
         if existing_email:
             raise HTTPException(status_code=400, detail="E-mail is already in use")
 
-    for field, value in data.model_dump(exclude_unset=True).items():
+    # Se a senha está sendo atualizada, criptografar
+    update_data = data.model_dump(exclude_unset=True)
+    if 'password' in update_data:
+        update_data['password'] = pwd_context.hash(update_data['password'])
+
+    for field, value in update_data.items():
         setattr(student, field, value)
         
     student.updated_at = datetime.now(timezone.utc)

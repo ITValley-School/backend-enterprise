@@ -47,6 +47,7 @@ class StudentTokenResponse(BaseModel):
 class StudentUpdate(BaseModel):
     name: Optional[str] = None
     email: Optional[EmailStr] = None
+    password: Optional[str] = None
     phone: Optional[str] = None
     role: Optional[str] = None
     location: Optional[str] = None

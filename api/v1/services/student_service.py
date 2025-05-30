@@ -1,10 +1,4 @@
-from fastapi import HTTPException
-from jose import jwt
-from datetime import datetime, timedelta, timezone
-import os
-from dotenv import load_dotenv
 from sqlalchemy.orm import Session
-
 from api.v1.repository.student_repository import (
     create_student as repo_create_student,
     get_student_by_email,
@@ -14,6 +8,12 @@ from api.v1.repository.student_repository import (
     delete_student as repo_delete_student
 )
 from api.v1.schemas.student_schema import StudentCreate, StudentUpdate
+from fastapi import HTTPException
+from passlib.context import CryptContext
+from jose import jwt
+from datetime import datetime, timedelta, timezone
+import os
+from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -21,8 +21,10 @@ SECRET_KEY = os.getenv("JWT_SECRET")
 ALGORITHM = os.getenv("JWT_ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
 
-def verify_password(plain, stored):
-    return plain == stored  # Comparação simples sem hash
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def verify_password(plain, hashed):
+    return pwd_context.verify(plain, hashed)
 
 def create_access_token(data: dict):
     to_encode = data.copy()
@@ -52,6 +54,7 @@ def delete_student_service(db: Session, student_id: str):
     success = repo_delete_student(db, student_id)
     if not success:
         raise HTTPException(status_code=404, detail="Student not found")
+
 
 def remove_student(db: Session, student_id: str):
     return delete_student_service(db, student_id)

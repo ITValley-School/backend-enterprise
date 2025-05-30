@@ -15,13 +15,13 @@ class Student(Base):
     phone = Column(String(50), nullable=True)
     role = Column(String(100), nullable=True)
     location = Column(String(200), nullable=True)
-    photo = Column(String(500), nullable=True) 
+    photo = Column(String(500), nullable=True)
     cargo = Column(String(150), nullable=True)
     bio = Column(Text, nullable=True)
     github = Column(String(255), nullable=True)
     linkedin = Column(String(255), nullable=True)
     
-    # Colunas de controle seguindo padrão do User
+    # Colunas de controle
     is_active = Column(Boolean, default=True, nullable=False)
     deleted_at = Column(DateTime, nullable=True)
     
@@ -29,5 +29,5 @@ class Student(Base):
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
 
     # Relacionamento com a tabela pivot
-    student_projects = relationship("StudentProject", back_populates="student", cascade="all, delete-orphan", overlaps="projects,students,student_projects")
+    student_projects = relationship("StudentProject", back_populates="student", cascade="all, delete-orphan")
 
