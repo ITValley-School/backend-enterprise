@@ -11,6 +11,7 @@ class Deliverable(Base):
 
     id = Column(String(36), default=lambda: str(uuid.uuid4()), primary_key=True)
     name = Column(String, nullable=False)
+    status = Column(String(20), nullable=False, default="Em Planejamento")
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
     project_id = Column(String(36), ForeignKey("tkse.projects.id"))
@@ -25,6 +26,7 @@ class Task(Base):
     id = Column(String(36), default=lambda: str(uuid.uuid4()), primary_key=True)
     name = Column(String, nullable=False)
     description = Column(Text, nullable=False)
+    status = Column(String(20), nullable=False, default="Pendente")
     estimated_time = Column(Float)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)

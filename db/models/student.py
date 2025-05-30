@@ -21,4 +21,5 @@ class Student(Base):
 
     # Relacionamento com a tabela pivot
     student_projects = relationship("StudentProject", back_populates="student", cascade="all, delete-orphan", overlaps="projects,students,student_projects")
+    projects = relationship("Project", secondary="tkse.student_project", back_populates="students", overlaps="student_projects,projects")
 

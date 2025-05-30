@@ -22,6 +22,8 @@ class Projeto(BaseModel):
     complexidade: str
     categoria: str
     pontuacao: str
+    status: str
+    progress: str
 
 class RequirementDocument(BaseModel):
     title: str
@@ -66,6 +68,7 @@ class AcceptanceCriteriaSchema(BaseModel):
 class TaskSchema(BaseModel):
     name: str
     description: str
+    status: str
     estimated_time: Optional[float]
     acceptance_criteria: List[AcceptanceCriteriaSchema]
 
@@ -76,6 +79,7 @@ class TaskSchema(BaseModel):
 class DeliverableSchema(BaseModel):
     name: str
     tasks: List[TaskSchema]
+    status: str
 
     model_config = {
         "from_attributes": True
@@ -94,6 +98,8 @@ class ProjectResponse(BaseModel):
     category: str
     score: str
     country: str
+    status: str
+    progress: int
 
     model_config = {
         "from_attributes": True

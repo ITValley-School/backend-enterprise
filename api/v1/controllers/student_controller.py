@@ -23,3 +23,7 @@ def delete_student(student_id: UUID, db: Session = Depends(get_db)):
     if not deleted:
         raise HTTPException(status_code=404, detail="Student not found")
     return deleted
+
+@router.get("/{student_id}/projects")
+def get_projects_by_student(student_id: UUID, db: Session = Depends(get_db)):
+    return student_service.get_projects_by_student(db, student_id)

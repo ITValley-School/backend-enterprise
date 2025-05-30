@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from api.v1.schemas.student_schema import StudentCreate
 from db.models.student import Student
@@ -31,3 +32,13 @@ def delete_student(db: Session, student_id: str):
         db.delete(student)
         db.commit()
     return student
+
+def get_all_students_by_project(db: Session, student_id: str):
+    student = db.query(Student).filter(Student.id == student_id).first()
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found")
+    projects = [
+        sp.project for sp in student.student_projects
+    ]
+
+    return projects

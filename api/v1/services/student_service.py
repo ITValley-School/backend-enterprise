@@ -13,3 +13,6 @@ def list_students(db: Session):
 
 def remove_student(db: Session, student_id: str):
     return student_repository.delete_student(db, student_id)
+
+def get_projects_by_student(db: Session, student_id: str):
+    return student_repository.get_all_students_by_project(db, student_id)
