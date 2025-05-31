@@ -27,3 +27,7 @@ def delete_student(student_id: UUID, db: Session = Depends(get_db)):
 @router.get("/{student_id}/projects")
 def get_projects_by_student(student_id: UUID, db: Session = Depends(get_db)):
     return student_service.get_projects_by_student(db, student_id)
+
+@router.post("/{student_id}/projects/{project_id}")
+def link_student_to_project(student_id: UUID, project_id: UUID, db: Session = Depends(get_db)):
+    return student_service.link_student_to_project(db, student_id, project_id)

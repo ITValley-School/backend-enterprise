@@ -39,4 +39,3 @@ class Project(Base):
             1 for e in self.deliverables if all(t.status == "Concluída" for t in e.tasks)
         )
         return round((concluidas / total) * 100)
-

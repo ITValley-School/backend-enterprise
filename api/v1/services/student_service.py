@@ -16,3 +16,6 @@ def remove_student(db: Session, student_id: str):
 
 def get_projects_by_student(db: Session, student_id: str):
     return student_repository.get_all_students_by_project(db, student_id)
+
+def link_student_to_project(db: Session, student_id: str, project_id: str):
+    return student_repository.link_student_to_project(db, student_id, project_id)
