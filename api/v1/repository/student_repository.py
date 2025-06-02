@@ -6,6 +6,7 @@ from passlib.context import CryptContext
 
 from api.v1.schemas.student_schema import StudentCreate, StudentUpdate
 from db.models.student import Student
+from db.models.student_project import StudentProject
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -18,7 +19,7 @@ def get_student_by_email(db: Session, email: str):
 def get_student_with_projects(db: Session, student_id: str):
     """Busca estudante com seus projetos relacionados"""
     return db.query(Student).options(
-        joinedload(Student.student_projects).joinedload("project")
+        joinedload(Student.student_projects).joinedload(StudentProject.project)
     ).filter(Student.id == student_id, Student.is_active == True).first()
         
 def create_student(db: Session, student: StudentCreate):
@@ -56,7 +57,7 @@ def get_all_students(db: Session):
 def get_all_students_with_projects(db: Session):
     """Lista todos os estudantes com seus projetos"""
     return db.query(Student).options(
-        joinedload(Student.student_projects).joinedload("project")
+        joinedload(Student.student_projects).joinedload(StudentProject.project)
     ).filter(Student.is_active == True).all()
 
 def update_student(db: Session, student_id: str, data: StudentUpdate) -> Student:

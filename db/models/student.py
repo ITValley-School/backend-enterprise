@@ -29,5 +29,5 @@ class Student(Base):
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
 
     # Relacionamento com a tabela pivot
-    student_projects = relationship("StudentProject", back_populates="student", cascade="all, delete-orphan")
+    student_projects = relationship("StudentProject", back_populates="student", cascade="all, delete-orphan", overlaps="projects")
 
