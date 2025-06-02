@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 import uuid
-from sqlalchemy import Boolean, Column, DateTime, String
+from sqlalchemy import Boolean, Column, DateTime, String, ForeignKey
 from db.base import Base
 from sqlalchemy.orm import relationship
 
@@ -25,6 +25,7 @@ class Enterprise(Base):
     state = Column(String(100), nullable=True)
     zip_code = Column(String(20), nullable=True)
     country = Column(String(100), nullable=True)
+    country_id = Column(String(36), ForeignKey("tkse.countries.id"), nullable=True)
     responsible_person = Column(String(255), nullable=True)
     hashed_password = Column(String, nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
@@ -33,3 +34,4 @@ class Enterprise(Base):
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
 
     projects = relationship("Project", back_populates="owner")
+    country_info = relationship("Country", back_populates="enterprises")

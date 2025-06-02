@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from api.v1.controllers import agent_project_deliver_controller, enterprise_controller, project_controller, student_controller, dashboard_controller
+from api.v1.controllers import agent_project_deliver_controller, enterprise_controller, project_controller, student_controller, dashboard_controller, country_controller
 
 
 
@@ -15,3 +15,4 @@ def setup_routes(app: FastAPI) -> None:
     app.include_router(enterprise_controller.router, prefix="/api/enterprises", tags=["enterprises"])
     app.include_router(student_controller.router, prefix="/api/students", tags=["students"])
     app.include_router(dashboard_controller.router, prefix="/api/dashboard", tags=["dashboard"])
+    app.include_router(country_controller.router, prefix="/api/countries", tags=["countries"])
