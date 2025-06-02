@@ -19,7 +19,6 @@ from api.v1.repository.enterprise_repository import (
     create_enterprise,
     get_enterprise_by_email,
     get_enterprise_by_id,
-    get_enterprise_by_username
 )
 
 router = APIRouter()
@@ -32,7 +31,7 @@ async def login(data: LoginRequest, db: Session = Depends(get_db)):
     if not enterprise or not verify_password(data.password, enterprise.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid username or password")
 
-    token_data = {"sub": str(enterprise.id), "username": enterprise.username}
+    token_data = {"sub": str(enterprise.id), "email": enterprise.email}
     token = create_access_token(token_data)
 
     return {
@@ -41,8 +40,10 @@ async def login(data: LoginRequest, db: Session = Depends(get_db)):
         "user": {
             "id": enterprise.id,
             "name": enterprise.name,
-            "username": enterprise.username,
-            "email": enterprise.email
+            "email": enterprise.email,
+            "is_active": enterprise.is_active,
+            "created_at": enterprise.created_at,
+            "updated_at": enterprise.updated_at
         }
     }
 

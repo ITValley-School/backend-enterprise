@@ -52,7 +52,7 @@ async def delete_project_route(project_id: UUID, db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.get("/enterprise/{enterprise_id}", response_model=list[ProjectResponse])
+@router.get("/enterprises/{enterprise_id}", response_model=list[ProjectResponse])
 async def get_projects_by_enterprise_id(enterprise_id: UUID, db: Session = Depends(get_db)):
     try:
         projects = await list_enterprise_projects(db, enterprise_id)
