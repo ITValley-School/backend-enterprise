@@ -1,8 +1,25 @@
+<<<<<<< HEAD
 # Byte-compiled / optimized / DLL files
+=======
+# Ambientes virtuais
+env/
+venv/
+ENV/
+ENV*/
+env*/
+venv*/
+
+# Arquivos de ambiente
+.env
+.env.*
+
+# __pycache__ e arquivos compilados
+>>>>>>> functionsClient
 __pycache__/
 *.py[cod]
 *$py.class
 
+<<<<<<< HEAD
 # C extensions
 *.so
 
@@ -43,10 +60,29 @@ htmlcov/
 .coverage
 .coverage.*
 .cache
+=======
+# Arquivos de log
+*.log
+
+# Pastas de IDEs
+.vscode/
+.idea/
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+
+# Pytest e cobertura de testes
+.cache/
+.coverage
+.tox/
+htmlcov/
+>>>>>>> functionsClient
 nosetests.xml
 coverage.xml
 *.cover
 *.py,cover
+<<<<<<< HEAD
 .hypothesis/
 .pytest_cache/
 cover/
@@ -172,3 +208,27 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+=======
+
+# Jupyter Notebooks (checkpoints)
+.ipynb_checkpoints
+
+# Builds
+build/
+dist/
+*.egg-info/
+.eggs/
+*.egg
+
+# Arquivos gerados pelo pip
+pip-wheel-metadata/
+
+# Arquivos de lock
+poetry.lock
+Pipfile.lock
+
+# Outros
+*.sqlite3
+*.db
+*.bak
+>>>>>>> functionsClient
