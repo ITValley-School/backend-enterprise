@@ -26,5 +26,5 @@ class Project(Base):
 
     owner = relationship("User", back_populates="projects")
     deliverables = relationship(Deliverable, back_populates="project", cascade="all, delete-orphan")
-    student_projects = relationship("StudentProject", back_populates="project", cascade="all, delete-orphan")
+    student_projects = relationship("StudentProject", back_populates="project", cascade="all, delete-orphan", overlaps="students,projects")
     students = relationship("Student", secondary="tkse.student_project", backref="projects", overlaps="student_projects,projects")

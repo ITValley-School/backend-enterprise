@@ -15,5 +15,5 @@ class StudentProject(Base):
     project_id = Column(String(36), ForeignKey("tkse.projects.id", ondelete="CASCADE"))
     joined_at = Column(DateTime, default=datetime.utcnow)
 
-    student = relationship("Student", back_populates="student_projects", overlaps="projects,students")
-    project = relationship("Project", back_populates="student_projects", overlaps="student_projects,students,projects")
+    student = relationship("Student", back_populates="student_projects", overlaps="projects")
+    project = relationship("Project", back_populates="student_projects", overlaps="students,projects")
