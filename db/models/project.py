@@ -13,7 +13,7 @@ class Project(Base):
 
     id = Column(String(36), default=lambda: str(uuid.uuid4()), primary_key=True, index=True)
     name = Column(String, nullable=False)
-    user_id = Column(String(36), ForeignKey("tkse.users.id"), nullable=False)
+    enterprise_id = Column(String(36), ForeignKey("tkse.enterprises.id"), nullable=False)
     blob_path = Column(String, nullable=False)
     description = Column(String, nullable=False)
     technologies = Column(JSON, nullable=False, default=list)
@@ -25,7 +25,7 @@ class Project(Base):
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
 
-    owner = relationship("User", back_populates="projects")
+    owner = relationship("Enterprise", back_populates="projects")
     deliverables = relationship(Deliverable, back_populates="project", cascade="all, delete-orphan")
     student_projects = relationship("StudentProject", back_populates="project", cascade="all, delete-orphan", overlaps="students,student_projects")
     students = relationship("Student", secondary="tkse.student_project", back_populates="projects", overlaps="student_projects,projects")

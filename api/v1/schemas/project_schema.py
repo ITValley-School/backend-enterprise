@@ -40,7 +40,7 @@ class ProjectStructure(BaseModel):
     main_menu: List[MenuItem]
 
 class CompleteProjectInput(BaseModel):
-    user_id: str
+    enterprise_id: str
     project_name: str
     requirements_html: str
     menus: list
@@ -88,7 +88,7 @@ class DeliverableSchema(BaseModel):
 class ProjectResponse(BaseModel):
     id: str
     name: str
-    user_id: str
+    enterprise_id: str
     blob_path: str
     created_at: datetime
     deliverables: List[DeliverableSchema]

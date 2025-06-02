@@ -6,10 +6,10 @@ from api.v1.repository.dashboard_repository import DashboardRepository
 
 class DashboardService:
     @staticmethod
-    def get_summary(db: Session, user_id: UUID):
-        pending_tasks = DashboardRepository.count_pending_tasks(db, user_id)
-        active_projects = DashboardRepository.count_active_projects(db, user_id)
-        students_in_projects = DashboardRepository.count_students_in_projects(db, user_id)
+    def get_summary(db: Session, enterprise_id: UUID):
+        pending_tasks = DashboardRepository.count_pending_tasks(db, enterprise_id)
+        active_projects = DashboardRepository.count_active_projects(db, enterprise_id)
+        students_in_projects = DashboardRepository.count_students_in_projects(db, enterprise_id)
 
         # Total geral
         total = pending_tasks + active_projects + students_in_projects or 1

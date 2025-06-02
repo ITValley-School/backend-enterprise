@@ -6,8 +6,8 @@ from api.v1.schemas.project_schema import CompleteProjectInput, ProjectResponse,
 from api.v1.services.project_service import (
     delete_project_service,
     get_project_service,
+    list_enterprise_projects,
     list_projects_service,
-    list_user_projects,
     publish_project_service,
     update_project_service
 )
@@ -52,10 +52,10 @@ async def delete_project_route(project_id: UUID, db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.get("/user/{user_id}", response_model=list[ProjectResponse])
-async def get_projects_by_user_id(user_id: UUID, db: Session = Depends(get_db)):
+@router.get("/enterprise/{enterprise_id}", response_model=list[ProjectResponse])
+async def get_projects_by_enterprise_id(enterprise_id: UUID, db: Session = Depends(get_db)):
     try:
-        projects = await list_user_projects(db, user_id)
+        projects = await list_enterprise_projects(db, enterprise_id)
         return projects
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

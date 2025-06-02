@@ -7,6 +7,6 @@ from db.session import get_db
 
 router = APIRouter()
 
-@router.get("/summary/{user_id}")
-def get_dashboard_summary(user_id: UUID, db: Session = Depends(get_db)):
-    return DashboardService.get_summary(db, user_id)
+@router.get("/summary/{enterprise_id}")
+def get_dashboard_summary(enterprise_id: UUID, db: Session = Depends(get_db)):
+    return DashboardService.get_summary(db, enterprise_id)

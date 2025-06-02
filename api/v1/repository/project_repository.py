@@ -6,13 +6,13 @@ from db.models.task import AcceptanceCriteria, Deliverable, Task
 from sqlalchemy.orm import Session
 from sqlalchemy.orm import joinedload
 
-from db.models.user import User
+from db.models.enterprise import Enterprise
 
 async def save_project_to_sql(
     db: Session,
     project_name: str, 
     deliverables: list, 
-    user_id: str, 
+    enterprise_id: str, 
     blob_path: str, 
     description: str,
     technologies: list,
@@ -24,7 +24,7 @@ async def save_project_to_sql(
     try:
         project = Project(
             name=project_name,
-            user_id=user_id,
+            enterprise_id=enterprise_id,
             blob_path=blob_path,
             description=description,
             technologies=technologies,
@@ -34,9 +34,9 @@ async def save_project_to_sql(
             country=country
         )
         
-        user = db.query(User).filter(User.id == project.user_id).first()
-        if not user:
-            raise HTTPException(status_code=400, detail="User not found.")
+        enterprise = db.query(Enterprise).filter(Enterprise.id == project.enterprise_id).first()
+        if not enterprise:
+            raise HTTPException(status_code=400, detail="Enterprise not found.")
         
         db.add(project)
         db.flush()  # Para gerar o ID do projeto
@@ -110,12 +110,12 @@ async def delete_project(db: Session, project_id: int) -> bool:
     finally:
         db.close()
 
-def get_projects_by_user(db: Session, user_id: str):
+def get_projects_by_enterprise(db: Session, enterprise_id: str):
     try:
         return db.query(Project).options(
             joinedload(Project.deliverables)
             .joinedload(Deliverable.tasks)
             .joinedload(Task.acceptance_criteria)
-        ).filter(Project.user_id == user_id).all()
+        ).filter(Project.enterprise_id == enterprise_id).all()
     finally:
         db.close()

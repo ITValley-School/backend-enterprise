@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from azure.core.exceptions import ResourceExistsError
 from azure.storage.blob.aio import BlobServiceClient
 from api.v1.repository.project_repository import (
-    get_projects_by_user,
+    get_projects_by_enterprise,
     save_project_to_sql,
     get_all_projects,
     get_project_by_id,
@@ -28,7 +28,7 @@ async def publish_project_service(db: Session, data):
 
         # Unique path for project assets
         timestamp = datetime.datetime.utcnow().isoformat().replace(":", "-")
-        path_prefix = f"{data.user_id}/{data.project_name}_{timestamp}"
+        path_prefix = f"{data.enterprise_id}/{data.project_name}_{timestamp}"
 
         # Upload files to Azure Blob Storage
         await container_client.upload_blob(
@@ -52,7 +52,7 @@ async def publish_project_service(db: Session, data):
         db,
         project_name=data.project_name,
         deliverables=data.deliverables,
-        user_id=data.user_id,
+        enterprise_id=data.enterprise_id,
         blob_path=path_prefix,
         description=data.description,
         technologies=data.technologies,
@@ -80,5 +80,5 @@ async def update_project_service(db: Session, project_id: int, update_data: dict
 async def delete_project_service(db: Session, project_id: int):
     return await delete_project(db, project_id)
 
-async def list_user_projects(db: Session, user_id: str):
-    return get_projects_by_user(db, user_id)
+async def list_enterprise_projects(db: Session, enterprise_id: str):
+    return get_projects_by_enterprise(db, enterprise_id)

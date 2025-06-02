@@ -1,0 +1,73 @@
+from uuid import UUID
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from db.session import get_db
+from api.v1.schemas.enterprise_schema import (
+    LoginRequest,
+    TokenResponse,
+    EnterpriseCreate,
+    EnterpriseResponse,
+    EnterpriseUpdate
+)
+from api.v1.services.enterprise_service import (
+    create_access_token,
+    verify_password,
+    update_enterprise_service,
+    delete_enterprise_service
+)
+from api.v1.repository.enterprise_repository import (
+    create_enterprise,
+    get_enterprise_by_email,
+    get_enterprise_by_id,
+    get_enterprise_by_username
+)
+
+router = APIRouter()
+
+
+@router.post("/login", response_model=TokenResponse)
+async def login(data: LoginRequest, db: Session = Depends(get_db)):
+    enterprise = get_enterprise_by_email(db, data.email)
+
+    if not enterprise or not verify_password(data.password, enterprise.hashed_password):
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+
+    token_data = {"sub": str(enterprise.id), "username": enterprise.username}
+    token = create_access_token(token_data)
+
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": {
+            "id": enterprise.id,
+            "name": enterprise.name,
+            "username": enterprise.username,
+            "email": enterprise.email
+        }
+    }
+
+
+@router.post("/", response_model=EnterpriseResponse)
+def create_new_enterprise(data: EnterpriseCreate, db: Session = Depends(get_db)):
+    db_enterprise = get_enterprise_by_email(db, data.email)
+    if db_enterprise:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    return create_enterprise(db, data)
+
+
+@router.get("/{enterprise_id}", response_model=EnterpriseResponse)
+def read_enterprise(enterprise_id: UUID, db: Session = Depends(get_db)):
+    enterprise = get_enterprise_by_id(db, enterprise_id)
+    if not enterprise:
+        raise HTTPException(status_code=404, detail="Enterprise not found")
+    return enterprise
+
+
+@router.put("/{enterprise_id}", response_model=EnterpriseResponse)
+def update_enterprise(enterprise_id: UUID, data: EnterpriseUpdate, db: Session = Depends(get_db)):
+    return update_enterprise_service(db, enterprise_id, data)
+
+
+@router.delete("/{enterprise_id}", status_code=204)
+def delete_enterprise(enterprise_id: UUID, db: Session = Depends(get_db)):
+    delete_enterprise_service(db, enterprise_id)

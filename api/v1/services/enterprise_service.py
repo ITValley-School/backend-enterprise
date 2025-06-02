@@ -7,8 +7,8 @@ import os
 from dotenv import load_dotenv
 from sqlalchemy.orm import Session
 
-from api.v1.repository.user_repository import delete_user, update_user
-from api.v1.schemas.user_schema import UserUpdate
+from api.v1.repository.enterprise_repository import delete_enterprise, update_enterprise
+from api.v1.schemas.enterprise_schema import EnterpriseUpdate
 
 load_dotenv()
 
@@ -18,22 +18,26 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+
 def verify_password(plain, hashed):
     return pwd_context.verify(plain, hashed)
 
+
 def create_access_token(data: dict):
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc)  + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-def update_user_service(db: Session, user_id: UUID, data: UserUpdate):
-    user = update_user(db, user_id, data)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return user
 
-def delete_user_service(db: Session, user_id: UUID):
-    success = delete_user(db, user_id)
+def update_enterprise_service(db: Session, enterprise_id: UUID, data: EnterpriseUpdate):
+    enterprise = update_enterprise(db, enterprise_id, data)
+    if not enterprise:
+        raise HTTPException(status_code=404, detail="Enterprise not found")
+    return enterprise
+
+
+def delete_enterprise_service(db: Session, enterprise_id: UUID):
+    success = delete_enterprise(db, enterprise_id)
     if not success:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="Enterprise not found")
