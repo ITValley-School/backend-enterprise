@@ -16,6 +16,7 @@ class EnterpriseBase(BaseModel):
     state: Optional[str] = None
     zip_code: Optional[str] = None
     country: Optional[str] = None
+    country_id: Optional[str] = None
     cnpj: Optional[str] = None
     legal_name: Optional[str] = None
     trade_name: Optional[str] = None
@@ -39,6 +40,7 @@ class EnterpriseUpdate(BaseModel):
     state: Optional[str] = None
     zip_code: Optional[str] = None
     country: Optional[str] = None
+    country_id: Optional[str] = None
     cnpj: Optional[str] = None
     legal_name: Optional[str] = None
     trade_name: Optional[str] = None
