@@ -3,20 +3,20 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from db.session import get_db
 from api.v1.schemas.enterprise_schema import (
+    EnterpriseCreateForm,
     LoginRequest,
     TokenResponse,
-    EnterpriseCreate,
     EnterpriseResponse,
     EnterpriseUpdate
 )
 from api.v1.services.enterprise_service import (
     create_access_token,
+    create_enterprise_service,
     verify_password,
     update_enterprise_service,
     delete_enterprise_service
 )
 from api.v1.repository.enterprise_repository import (
-    create_enterprise,
     get_enterprise_by_email,
     get_enterprise_by_id,
 )
@@ -49,11 +49,8 @@ async def login(data: LoginRequest, db: Session = Depends(get_db)):
 
 
 @router.post("/", response_model=EnterpriseResponse)
-def create_new_enterprise(data: EnterpriseCreate, db: Session = Depends(get_db)):
-    db_enterprise = get_enterprise_by_email(db, data.email)
-    if db_enterprise:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    return create_enterprise(db, data)
+def create_new_enterprise(data: EnterpriseCreateForm, db: Session = Depends(get_db)):
+    return create_enterprise_service(db, data)
 
 
 @router.get("/{enterprise_id}", response_model=EnterpriseResponse)

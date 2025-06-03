@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Optional
+from fastapi import File, Form, UploadFile
 from pydantic import BaseModel, EmailStr
 
 class LoginRequest(BaseModel):
@@ -24,11 +25,20 @@ class EnterpriseBase(BaseModel):
     municipal_registration: Optional[str] = None
     responsible_person: Optional[str] = None
 
-
-class EnterpriseCreate(EnterpriseBase):
-    email: EmailStr
-    password: str
-
+class EnterpriseCreateForm(BaseModel):
+    name: str = Form(...)
+    email: EmailStr = Form(...)
+    password: str = Form(...)
+    cnpj: str = Form(...)
+    phone: str = Form(...)
+    website: str = Form(...)
+    address: str = Form(...)
+    city: str = Form(...)
+    state: str = Form(...)
+    zip_code: str = Form(...)
+    country: str = Form(...)
+    responsible_person: str = Form(...)
+    profile_image: Optional[UploadFile] = File(None),
 
 class EnterpriseUpdate(BaseModel):
     name: Optional[str] = None

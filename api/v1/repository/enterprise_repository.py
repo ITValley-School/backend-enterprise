@@ -5,7 +5,7 @@ from sqlalchemy import and_
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 
-from api.v1.schemas.enterprise_schema import EnterpriseCreate, EnterpriseUpdate
+from api.v1.schemas.enterprise_schema import EnterpriseCreateForm, EnterpriseUpdate
 from db.models.enterprise import Enterprise
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -32,13 +32,13 @@ def get_enterprise_by_email(db: Session, email: str):
         db.close()
 
 
-def create_enterprise(db: Session, enterprise: EnterpriseCreate):
+def create_enterprise(db: Session, enterprise: EnterpriseCreateForm):
     try:
-        existing = db.query(Enterprise).filter(Enterprise.username == enterprise.username).first()
+        existing = db.query(Enterprise).filter(Enterprise.email == enterprise.email).first()
         if existing:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Username already exists",
+                detail="Email already exists",
             )
 
         hashed_password = pwd_context.hash(enterprise.password)

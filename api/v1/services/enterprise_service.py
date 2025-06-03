@@ -1,5 +1,5 @@
-from uuid import UUID
-from fastapi import HTTPException
+from uuid import UUID, uuid4
+from fastapi import HTTPException, UploadFile
 from passlib.context import CryptContext
 from jose import jwt
 from datetime import datetime, timedelta, timezone
@@ -7,8 +7,8 @@ import os
 from dotenv import load_dotenv
 from sqlalchemy.orm import Session
 
-from api.v1.repository.enterprise_repository import delete_enterprise, update_enterprise
-from api.v1.schemas.enterprise_schema import EnterpriseUpdate
+from api.v1.repository.enterprise_repository import delete_enterprise, update_enterprise, create_enterprise
+from api.v1.schemas.enterprise_schema import EnterpriseCreateForm, EnterpriseUpdate
 
 load_dotenv()
 
@@ -41,3 +41,39 @@ def delete_enterprise_service(db: Session, enterprise_id: UUID):
     success = delete_enterprise(db, enterprise_id)
     if not success:
         raise HTTPException(status_code=404, detail="Enterprise not found")
+
+
+def create_enterprise_service(data: EnterpriseCreateForm, db):
+
+    hashed_password = pwd_context.hash(data.password)
+    image_path = handle_image_upload(data.profile_image)
+
+    enterprise_data = {
+        "name": data.name,
+        "email": data.email,
+        "hashed_password": hashed_password,
+        "cnpj": data.cnpj,
+        "phone": data.phone,
+        "website": data.website,
+        "address": data.address,
+        "city": data.city,
+        "state": data.state,
+        "zip_code": data.zip_code,
+        "country": data.country,
+        "responsible_person": data.responsible_person,
+        "profile_image_path": image_path,
+    }
+
+    return create_enterprise(db, enterprise_data)
+
+
+def handle_image_upload(image: UploadFile, base_path="static/uploads/enterprises/"):
+    if not image:
+        return None
+    ext = image.filename.split(".")[-1]
+    filename = f"{uuid4().hex}_{datetime.utcnow().timestamp()}.{ext}"
+    os.makedirs(base_path, exist_ok=True)
+    file_path = os.path.join(base_path, filename)
+    with open(file_path, "wb") as f:
+        f.write(image.file.read())
+    return file_path

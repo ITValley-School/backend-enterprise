@@ -28,6 +28,7 @@ class Enterprise(Base):
     country_id = Column(String(36), ForeignKey("tkse.countries.id"), nullable=True)
     responsible_person = Column(String(255), nullable=True)
     hashed_password = Column(String, nullable=False)
+    profile_image_path = Column(String(255), nullable=True)
     is_active = Column(Boolean, default=True, nullable=False)
     deleted_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
