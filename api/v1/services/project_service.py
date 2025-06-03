@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from azure.core.exceptions import ResourceExistsError
 from azure.storage.blob.aio import BlobServiceClient
 from api.v1.repository.project_repository import (
+    filter_projects_by_name,
     get_projects_by_enterprise,
     save_project_to_sql,
     get_all_projects,
@@ -82,3 +83,6 @@ async def delete_project_service(db: Session, project_id: int):
 
 async def list_enterprise_projects(db: Session, enterprise_id: str):
     return get_projects_by_enterprise(db, enterprise_id)
+
+def get_filtered_projects(db: Session, name: str):
+    return filter_projects_by_name(db, name)

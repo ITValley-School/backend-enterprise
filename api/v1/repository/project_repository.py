@@ -119,3 +119,6 @@ def get_projects_by_enterprise(db: Session, enterprise_id: str):
         ).filter(Project.enterprise_id == enterprise_id).all()
     finally:
         db.close()
+        
+def filter_projects_by_name(db: Session, name: str):
+    return db.query(Project).filter(Project.name.ilike(f"%{name}%")).all()

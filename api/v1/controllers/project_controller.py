@@ -1,10 +1,11 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, Path
+from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from sqlalchemy.orm import Session
 from db.session import get_db
 from api.v1.schemas.project_schema import CompleteProjectInput, ProjectResponse, UpdateProjectInput
 from api.v1.services.project_service import (
     delete_project_service,
+    get_filtered_projects,
     get_project_service,
     list_enterprise_projects,
     list_projects_service,
@@ -28,6 +29,10 @@ async def publish_project_route(payload: CompleteProjectInput, db: Session = Dep
         return {"message": "Project published successfully!", "path": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+        
+@router.get("/filter", response_model=list[ProjectResponse])
+def filter_projects(name: str = Query(..., min_length=1), db: Session = Depends(get_db)):
+    return get_filtered_projects(db, name)
 
 @router.get("/{project_id}")
 async def retrieve_project(project_id: UUID, db: Session = Depends(get_db)):
