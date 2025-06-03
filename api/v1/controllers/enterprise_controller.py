@@ -34,23 +34,20 @@ async def login(data: LoginRequest, db: Session = Depends(get_db)):
     token_data = {"sub": str(enterprise.id), "email": enterprise.email}
     token = create_access_token(token_data)
 
+    user_data = enterprise.__dict__.copy()
+    user_data.pop("hashed_password", None)
+    user_data.pop("password", None)
+    
     return {
         "access_token": token,
         "token_type": "bearer",
-        "user": {
-            "id": enterprise.id,
-            "name": enterprise.name,
-            "email": enterprise.email,
-            "is_active": enterprise.is_active,
-            "created_at": enterprise.created_at,
-            "updated_at": enterprise.updated_at
-        }
+        "user": user_data
     }
 
 
 @router.post("/", response_model=EnterpriseResponse)
-def create_new_enterprise(data: EnterpriseCreateForm, db: Session = Depends(get_db)):
-    return create_enterprise_service(db, data)
+def create_new_enterprise(data: EnterpriseCreateForm = Depends(), db: Session = Depends(get_db)):
+    return create_enterprise_service(data, db)
 
 
 @router.get("/{enterprise_id}", response_model=EnterpriseResponse)

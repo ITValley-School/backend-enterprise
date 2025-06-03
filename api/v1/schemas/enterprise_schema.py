@@ -25,20 +25,36 @@ class EnterpriseBase(BaseModel):
     municipal_registration: Optional[str] = None
     responsible_person: Optional[str] = None
 
-class EnterpriseCreateForm(BaseModel):
-    name: str = Form(...)
-    email: EmailStr = Form(...)
-    password: str = Form(...)
-    cnpj: str = Form(...)
-    phone: str = Form(...)
-    website: str = Form(...)
-    address: str = Form(...)
-    city: str = Form(...)
-    state: str = Form(...)
-    zip_code: str = Form(...)
-    country: str = Form(...)
-    responsible_person: str = Form(...)
-    profile_image: Optional[UploadFile] = File(None),
+class EnterpriseCreateForm:
+    def __init__(
+        self,
+        name: str = Form(...),
+        email: EmailStr = Form(...),
+        password: str = Form(...),
+        cnpj: str = Form(...),
+        phone: str = Form(...),
+        website: str = Form(...),
+        address: str = Form(...),
+        city: str = Form(...),
+        state: str = Form(...),
+        zip_code: str = Form(...),
+        responsible_person: str = Form(...),
+        country_id: Optional[str] = Form(None),
+        profile_image: Optional[UploadFile] = File(None),
+    ):
+        self.name = name
+        self.email = email
+        self.password = password
+        self.cnpj = cnpj
+        self.phone = phone
+        self.website = website
+        self.address = address
+        self.city = city
+        self.state = state
+        self.zip_code = zip_code
+        self.responsible_person = responsible_person
+        self.country_id = country_id
+        self.profile_image = profile_image
 
 class EnterpriseUpdate(BaseModel):
     name: Optional[str] = None
@@ -65,6 +81,7 @@ class EnterpriseResponse(EnterpriseBase):
     is_active: bool
     created_at: datetime
     updated_at: datetime
+    profile_image_path: Optional[str] = None
 
     model_config = {
         "from_attributes": True

@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from api.v1.repository.enterprise_repository import delete_enterprise, update_enterprise, create_enterprise
 from api.v1.schemas.enterprise_schema import EnterpriseCreateForm, EnterpriseUpdate
+from db.models.enterprise import Enterprise
 
 load_dotenv()
 
@@ -48,23 +49,23 @@ def create_enterprise_service(data: EnterpriseCreateForm, db):
     hashed_password = pwd_context.hash(data.password)
     image_path = handle_image_upload(data.profile_image)
 
-    enterprise_data = {
-        "name": data.name,
-        "email": data.email,
-        "hashed_password": hashed_password,
-        "cnpj": data.cnpj,
-        "phone": data.phone,
-        "website": data.website,
-        "address": data.address,
-        "city": data.city,
-        "state": data.state,
-        "zip_code": data.zip_code,
-        "country": data.country,
-        "responsible_person": data.responsible_person,
-        "profile_image_path": image_path,
-    }
+    db_enterprise = Enterprise(
+    name=data.name,
+    email=data.email,
+    hashed_password=hashed_password,
+    cnpj=data.cnpj,
+    phone=data.phone,
+    website=data.website,
+    address=data.address,
+    city=data.city,
+    state=data.state,
+    zip_code=data.zip_code,
+    country_id=data.country_id,
+    responsible_person=data.responsible_person,
+    profile_image_path=image_path,
+    )
 
-    return create_enterprise(db, enterprise_data)
+    return create_enterprise(db, db_enterprise)
 
 
 def handle_image_upload(image: UploadFile, base_path="static/uploads/enterprises/"):

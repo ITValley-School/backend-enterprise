@@ -41,17 +41,11 @@ def create_enterprise(db: Session, enterprise: EnterpriseCreateForm):
                 detail="Email already exists",
             )
 
-        hashed_password = pwd_context.hash(enterprise.password)
 
-        db_enterprise = Enterprise(
-            **enterprise.model_dump(exclude={"password"}),
-            hashed_password=hashed_password,
-        )
-
-        db.add(db_enterprise)
+        db.add(enterprise)
         db.commit()
-        db.refresh(db_enterprise)
-        return db_enterprise
+        db.refresh(enterprise)
+        return enterprise
     finally:
         db.close()
 
