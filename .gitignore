@@ -224,4 +224,7 @@ Pipfile.lock
 *.db
 *.bak
 
-static/uploads
+# Ignora tudo dentro da pasta enterprises (inclusive subpastas e arquivos)
+static/uploads/enterprises/**
+!static/uploads/enterprises/
+!static/uploads/enterprises/.gitkeep
