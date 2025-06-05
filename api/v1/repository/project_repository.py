@@ -8,6 +8,15 @@ from sqlalchemy.orm import joinedload
 
 from db.models.enterprise import Enterprise
 
+valid_transitions = {
+    "PENDING": ["OPEN", "CANCELLED"],
+    "OPEN": ["IN_PROGRESS", "CANCELLED"],
+    "IN_PROGRESS": ["COMPLETED", "CANCELLED"],
+    "COMPLETED": [],
+    "CANCELLED": []
+}
+
+
 async def save_project_to_sql(
     db: Session,
     project_name: str, 
@@ -122,3 +131,25 @@ def get_projects_by_enterprise(db: Session, enterprise_id: str):
         
 def filter_projects_by_name(db: Session, name: str):
     return db.query(Project).filter(Project.name.ilike(f"%{name}%")).all()
+
+
+def can_transition(current: str, new: str) -> bool:
+    return new in valid_transitions.get(current, [])
+
+def update_project_status(db: Session, project_id: str, new_status: str):
+    try:
+        project = db.query(Project).filter(Project.id == project_id).first()
+        if not project:
+            raise NoResultFound("Project not found")
+        
+        current_status = project.status
+
+        if not can_transition(current_status, new_status):
+            raise HTTPException(status_code=400, detail=f"Cannot transition from {current_status} to {new_status}")
+
+        project.status = new_status
+        db.commit()
+        db.refresh(project)
+        return project
+    finally:
+        db.close()

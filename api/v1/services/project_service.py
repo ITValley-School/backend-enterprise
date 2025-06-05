@@ -11,7 +11,8 @@ from api.v1.repository.project_repository import (
     get_all_projects,
     get_project_by_id,
     update_project,
-    delete_project
+    delete_project,
+    update_project_status
 )
 
 
@@ -86,3 +87,6 @@ async def list_enterprise_projects(db: Session, enterprise_id: str):
 
 def get_filtered_projects(db: Session, name: str):
     return filter_projects_by_name(db, name)
+
+async def update_project_status_service(db: Session, project_id: str, new_status: str):
+    return update_project_status(db, project_id, new_status)

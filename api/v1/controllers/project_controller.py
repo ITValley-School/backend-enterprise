@@ -2,7 +2,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from sqlalchemy.orm import Session
 from db.session import get_db
-from api.v1.schemas.project_schema import CompleteProjectInput, ProjectResponse, UpdateProjectInput
+from api.v1.schemas.project_schema import CompleteProjectInput, ProjectResponse, UpdateProjectInput, UpdateStatusInput
 from api.v1.services.project_service import (
     delete_project_service,
     get_filtered_projects,
@@ -10,7 +10,8 @@ from api.v1.services.project_service import (
     list_enterprise_projects,
     list_projects_service,
     publish_project_service,
-    update_project_service
+    update_project_service,
+    update_project_status_service
 )
 
 router = APIRouter()
@@ -62,5 +63,19 @@ async def get_projects_by_enterprise_id(enterprise_id: UUID, db: Session = Depen
     try:
         projects = await list_enterprise_projects(db, enterprise_id)
         return projects
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@router.patch("/{project_id}/status")
+async def update_project_status_route(
+    project_id: UUID,
+    payload: UpdateStatusInput,
+    db: Session = Depends(get_db)
+):
+    try:
+        updated = await update_project_status_service(db, str(project_id), payload.new_status)
+        return {"message": f"Status atualizado para {payload.new_status}", "project": updated}
+    except HTTPException as e:
+        raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

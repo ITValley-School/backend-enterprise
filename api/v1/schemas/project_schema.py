@@ -104,3 +104,6 @@ class ProjectResponse(BaseModel):
     model_config = {
         "from_attributes": True
     }
+    
+class UpdateStatusInput(BaseModel):
+    new_status: str

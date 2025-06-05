@@ -1,10 +1,17 @@
+from enum import Enum
 import uuid
-from sqlalchemy import JSON, Column, ForeignKey, String, DateTime
+from sqlalchemy import JSON, Column, ForeignKey, String, DateTime, Enum as SQLEnum
 from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
 from db.base import Base
 from db.models.task import Deliverable
 
+class ProjectStatus(str, Enum):
+    PENDING = "PENDING"
+    OPEN = "OPEN"
+    IN_PROGRESS = "IN_PROGRESS"
+    COMPLETED = "COMPLETED"
+    CANCELLED = "CANCELLED"
 
 
 class Project(Base):
@@ -21,7 +28,7 @@ class Project(Base):
     category = Column(String, nullable=False)
     score = Column(String, nullable=False)
     country = Column(String, nullable=False)
-    status = Column(String(20), nullable=False, default="Em Aberto")
+    status = Column(SQLEnum(ProjectStatus), nullable=False, default=ProjectStatus.PENDING)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
 
