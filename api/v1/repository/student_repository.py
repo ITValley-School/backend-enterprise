@@ -17,6 +17,25 @@ def get_student_by_id(db: Session, student_id: str):
 def get_student_by_email(db: Session, email: str):
     return db.query(Student).filter(Student.email == email, Student.is_active == True).first()
 
+def get_student_with_projects_and_deliverables(db: Session, student_id: str):
+    """Busca o aluno com seus projetos e os entregáveis (deliverables) de cada projeto."""
+    return db.query(Student).options(
+        joinedload(Student.student_projects)
+            .joinedload(StudentProject.project)
+            .joinedload(Project.deliverables)
+    ).filter(Student.id == student_id, Student.is_active == True).first()
+
+def get_student_deliverables_list(db: Session, student_id: str):
+    """Extrai a lista de entregáveis dos projetos do aluno."""
+    student = get_student_with_projects_and_deliverables(db, student_id)
+    if not student:
+        return None
+    deliverables = []
+    for sp in student.student_projects:
+        if sp.project:
+            deliverables.extend(sp.project.deliverables)
+    return deliverables
+
 def get_student_with_projects(db: Session, student_id: str):
     """Busca estudante com seus projetos relacionados"""
     return db.query(Student).options(
@@ -75,6 +94,12 @@ def link_student_to_project(db: Session, student_id: uuid.UUID, project_id: uuid
     project = db.query(Project).filter(Project.id == project_id).first()
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
+
+    if project.status in ("PENDING", "CANCELLED"):
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot join a project that has not started or has been cancelled"
+        )
 
     student_project = StudentProject(
         student_id=student.id,

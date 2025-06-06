@@ -1,7 +1,10 @@
 from typing import List
 from fastapi import HTTPException
+from sqlalchemy import String, case, cast, extract, func, literal, text
 from sqlalchemy.orm.exc import NoResultFound
 from db.models.project import Project
+from db.models.student import Student
+from db.models.student_project import StudentProject
 from db.models.task import AcceptanceCriteria, Deliverable, Task
 from sqlalchemy.orm import Session
 from sqlalchemy.orm import joinedload
@@ -77,10 +80,11 @@ async def save_project_to_sql(
         db.close()
 
 async def get_all_projects(db: Session) -> List[Project]:
-    try:
-        return db.query(Project).all()
-    finally:
-        db.close()
+    return (
+        db.query(Project)
+        .options(joinedload(Project.students))
+        .all()
+    )
 
 async def get_project_by_id(db: Session, project_id: int) -> Project:
     try:
@@ -122,6 +126,7 @@ async def delete_project(db: Session, project_id: int) -> bool:
 def get_projects_by_enterprise(db: Session, enterprise_id: str):
     try:
         return db.query(Project).options(
+            joinedload(Project.students),
             joinedload(Project.deliverables)
             .joinedload(Deliverable.tasks)
             .joinedload(Task.acceptance_criteria)
@@ -153,3 +158,15 @@ def update_project_status(db: Session, project_id: str, new_status: str):
         return project
     finally:
         db.close()
+        
+def get_visible_projects_for_students(db: Session) -> List[Project]:
+  return (
+        db.query(Project)
+        .options(
+            joinedload(Project.owner),  # para acessar project.owner.name
+            joinedload(Project.deliverables).joinedload(Deliverable.tasks)  # para acessar deliverable.tasks
+        )
+        .filter(Project.status != "PENDING")
+        .order_by(Project.created_at.desc())
+        .all()
+    )

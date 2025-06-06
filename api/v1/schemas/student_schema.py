@@ -58,3 +58,9 @@ class StudentUpdate(BaseModel):
     linkedin: Optional[str] = None
 
 StudentRead = StudentResponse
+
+class StudentDashboardResponse(BaseModel):
+    completed_tasks: int
+    in_progress_tasks: int
+    total_deliverables: int
+    certificate: int

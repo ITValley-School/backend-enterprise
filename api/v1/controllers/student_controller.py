@@ -2,9 +2,12 @@ from typing import List
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from api.v1.repository.dashboard_repository import StudentDashboardRepository
 from api.v1.services import student_service
+from api.v1.services.project_service import list_visible_projects
 from db.session import get_db
 from api.v1.schemas.student_schema import (
+    StudentDashboardResponse,
     StudentLoginRequest, 
     StudentTokenResponse, 
     StudentCreate, 
@@ -12,7 +15,8 @@ from api.v1.schemas.student_schema import (
     StudentUpdate
 )
 from api.v1.services.student_service import (
-    create_access_token, 
+    create_access_token,
+    list_deliverables_for_student, 
     verify_password, 
     create_student,
     list_students,
@@ -66,6 +70,10 @@ def create_new_student(student: StudentCreate, db: Session = Depends(get_db)):
 def get_students(db: Session = Depends(get_db)):
     return list_students(db)
 
+@router.get("/visible-projects")
+def get_visible_projects(db: Session = Depends(get_db)):
+    return list_visible_projects(db)
+
 @router.get("/{student_id}", response_model=StudentResponse)
 def read_student(student_id: str, db: Session = Depends(get_db)):
     return get_student_by_id_service(db, student_id)
@@ -114,3 +122,21 @@ def get_projects_by_student(student_id: UUID, db: Session = Depends(get_db)):
 @router.post("/{student_id}/projects/{project_id}")
 def link_student_to_project(student_id: UUID, project_id: UUID, db: Session = Depends(get_db)):
     return student_service.link_student_to_project(db, student_id, project_id)
+
+@router.get("/students/{student_id}/dashboard", response_model=StudentDashboardResponse)
+def get_student_dashboard(student_id: UUID, db: Session = Depends(get_db)):
+    try:
+        data = StudentDashboardRepository.get_dashboard_data(db, student_id)
+        return data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/students/{student_id}/deliverables")
+def get_student_deliverables(student_id: UUID, db: Session = Depends(get_db)):
+    try:
+        deliverables = list_deliverables_for_student(db, str(student_id))
+        if deliverables is None:
+            raise HTTPException(status_code=404, detail="Student not found")
+        return deliverables
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

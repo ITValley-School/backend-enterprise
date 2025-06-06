@@ -2,6 +2,8 @@ from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel
 
+from api.v1.schemas.student_schema import StudentResponse
+
 
 
 class Tarefa(BaseModel):
@@ -89,7 +91,6 @@ class ProjectResponse(BaseModel):
     id: str
     name: str
     enterprise_id: str
-    blob_path: str
     created_at: datetime
     deliverables: List[DeliverableSchema]
     description: str
@@ -100,10 +101,29 @@ class ProjectResponse(BaseModel):
     country: str
     status: str
     progress: int
+    team: List[StudentResponse]
 
     model_config = {
         "from_attributes": True
     }
     
+    
+class ProjectList(BaseModel):
+    id: str
+    name: str
+    created_at: datetime
+    description: str
+    technologies: List[str]
+    complexity: str
+    category: str
+    score: str
+    country: str
+    status: str
+    progress: int
+    team: List[StudentResponse]
+
+    model_config = {
+        "from_attributes": True
+    }
 class UpdateStatusInput(BaseModel):
     new_status: str

@@ -4,6 +4,7 @@ from api.v1.repository.student_repository import (
     create_student as repo_create_student,
     get_student_by_id,
     get_all_students,
+    get_student_deliverables_list,
     update_student as repo_update_student,
     delete_student as repo_delete_student
 )
@@ -60,3 +61,10 @@ def get_projects_by_student(db: Session, student_id: str):
 
 def link_student_to_project(db: Session, student_id: str, project_id: str):
     return student_repository.link_student_to_project(db, student_id, project_id)
+
+
+def list_deliverables_for_student(db: Session, student_id: str):
+    deliverables = get_student_deliverables_list(db, student_id)
+    if deliverables is None:
+        raise Exception("Student not found or inactive")
+    return deliverables

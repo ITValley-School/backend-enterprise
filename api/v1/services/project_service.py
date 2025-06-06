@@ -1,3 +1,4 @@
+from calendar import month_abbr
 import os
 import json
 import datetime
@@ -7,6 +8,7 @@ from azure.storage.blob.aio import BlobServiceClient
 from api.v1.repository.project_repository import (
     filter_projects_by_name,
     get_projects_by_enterprise,
+    get_visible_projects_for_students,
     save_project_to_sql,
     get_all_projects,
     get_project_by_id,
@@ -90,3 +92,32 @@ def get_filtered_projects(db: Session, name: str):
 
 async def update_project_status_service(db: Session, project_id: str, new_status: str):
     return update_project_status(db, project_id, new_status)
+
+def list_visible_projects(db: Session):
+    projects = get_visible_projects_for_students(db)
+
+    def serialize(project):
+        estimated_hours = sum(
+            task.estimated_time
+            for deliverable in project.deliverables
+            for task in deliverable.tasks
+        )
+        return {
+            "id": project.id,
+            "name": project.name,
+            "enterprise_id": project.enterprise_id,
+            "enterprise_name": project.owner.name,
+            "description": project.description,
+            "complexity": project.complexity,
+            "score": project.score,
+            "status": project.status,
+            "created_at": project.created_at,
+            "updated_at": project.updated_at,
+            "blob_path": project.blob_path,
+            "technologies": project.technologies,
+            "category": project.category,
+            "country": project.country,
+            "estimated_hours": estimated_hours,
+        }
+
+    return [serialize(p) for p in projects]
