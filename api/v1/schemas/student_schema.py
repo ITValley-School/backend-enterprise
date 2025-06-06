@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 
 class StudentLoginRequest(BaseModel):
@@ -64,3 +64,40 @@ class StudentDashboardResponse(BaseModel):
     in_progress_tasks: int
     total_deliverables: int
     certificate: int
+
+class StudentAcceptanceCriteriaResponse(BaseModel):
+    id: str
+    description: str
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = {
+        "from_attributes": True
+    }
+
+class StudentTaskResponse(BaseModel):
+    id: str
+    name: str
+    description: str
+    status: str
+    estimated_time: Optional[float]
+    created_at: datetime
+    updated_at: datetime
+    acceptance_criteria: List[StudentAcceptanceCriteriaResponse]
+
+    model_config = {
+        "from_attributes": True
+    }
+
+class StudentDeliverableResponse(BaseModel):
+    id: str
+    name: str
+    status: str
+    created_at: datetime
+    updated_at: datetime
+    project_id: str
+    tasks: List[StudentTaskResponse]
+
+    model_config = {
+        "from_attributes": True
+    }
