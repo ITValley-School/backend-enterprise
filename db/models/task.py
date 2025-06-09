@@ -51,3 +51,24 @@ class AcceptanceCriteria(Base):
     task_id = Column(String(36), ForeignKey("tkse.tasks.id"))
 
     task = relationship("Task", back_populates="acceptance_criteria")
+    
+class TaskSubmission(Base):
+    __tablename__ = "task_submissions"
+    __table_args__ = {"schema": "tkse"}
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    task_id = Column(String(36), ForeignKey("tkse.tasks.id"), nullable=False)
+    student_id = Column(String(36), ForeignKey("tkse.students.id"), nullable=False)
+    validated_by = Column(String(36), ForeignKey("tkse.enterprises.id"), nullable=True)
+
+    submission_link = Column(String(500), nullable=True)
+    branch_name = Column(String(255), nullable=True)
+    evidence_file = Column(String(500), nullable=True)
+    status = Column(String(20), default="PENDING")
+    feedback = Column(Text, nullable=True)
+    submitted_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    validated_at = Column(DateTime(timezone=True), nullable=True)
+
+    task = relationship("Task")
+    student = relationship("Student")
+    validator = relationship("Enterprise", foreign_keys=[validated_by])

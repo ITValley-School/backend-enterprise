@@ -3,6 +3,8 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from api.v1.repository.dashboard_repository import StudentDashboardRepository
+from api.v1.repository.task_repository import TaskSubmissionRepository
+from api.v1.schemas.task_schema import TaskSubmissionCreate, TaskSubmissionResponse
 from api.v1.services import student_service
 from api.v1.services.project_service import list_visible_projects
 from db.session import get_db
@@ -123,7 +125,7 @@ def get_projects_by_student(student_id: UUID, db: Session = Depends(get_db)):
 def link_student_to_project(student_id: UUID, project_id: UUID, db: Session = Depends(get_db)):
     return student_service.link_student_to_project(db, student_id, project_id)
 
-@router.get("/students/{student_id}/dashboard", response_model=StudentDashboardResponse)
+@router.get("/{student_id}/dashboard", response_model=StudentDashboardResponse)
 def get_student_dashboard(student_id: UUID, db: Session = Depends(get_db)):
     try:
         data = StudentDashboardRepository.get_dashboard_data(db, student_id)
@@ -131,7 +133,7 @@ def get_student_dashboard(student_id: UUID, db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/students/{student_id}/deliverables")
+@router.get("/{student_id}/deliverables")
 def get_student_deliverables(student_id: UUID, db: Session = Depends(get_db)):
     try:
         deliverables = list_deliverables_for_student(db, str(student_id))
@@ -140,3 +142,7 @@ def get_student_deliverables(student_id: UUID, db: Session = Depends(get_db)):
         return deliverables
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+@router.post("/{student_id}/submissions", response_model=TaskSubmissionResponse)
+def submit_task(student_id: UUID, data: TaskSubmissionCreate, db: Session = Depends(get_db)):
+    return TaskSubmissionRepository.create_submission(db, student_id, data)

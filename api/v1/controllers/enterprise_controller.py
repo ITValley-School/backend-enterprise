@@ -1,6 +1,8 @@
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from api.v1.repository.task_repository import TaskSubmissionRepository
+from api.v1.schemas.task_schema import TaskSubmissionResponse, TaskSubmissionValidate
 from db.session import get_db
 from api.v1.schemas.enterprise_schema import (
     EnterpriseCreateForm,
@@ -55,14 +57,23 @@ def read_enterprise(enterprise_id: UUID, db: Session = Depends(get_db)):
     enterprise = get_enterprise_by_id(db, enterprise_id)
     if not enterprise:
         raise HTTPException(status_code=404, detail="Enterprise not found")
-    return enterprise
+    return EnterpriseResponse.model_validate(enterprise)
 
 
 @router.put("/{enterprise_id}", response_model=EnterpriseResponse)
-def update_enterprise(enterprise_id: UUID, data: EnterpriseUpdate, db: Session = Depends(get_db)):
+def update_enterprise(enterprise_id: UUID, data: EnterpriseCreateForm = Depends(), db: Session = Depends(get_db)):
     return update_enterprise_service(db, enterprise_id, data)
 
 
 @router.delete("/{enterprise_id}", status_code=204)
 def delete_enterprise(enterprise_id: UUID, db: Session = Depends(get_db)):
     delete_enterprise_service(db, enterprise_id)
+
+
+@router.post("/submissions/{submission_id}/validate", response_model=TaskSubmissionResponse)
+def validate_task_submission(
+    submission_id: UUID,
+    data: TaskSubmissionValidate,
+    db: Session = Depends(get_db),
+):
+    return TaskSubmissionRepository.validate_submission(db, submission_id, data)

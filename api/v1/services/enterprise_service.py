@@ -31,7 +31,17 @@ def create_access_token(data: dict):
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
-def update_enterprise_service(db: Session, enterprise_id: UUID, data: EnterpriseUpdate):
+def update_enterprise_service(db: Session, enterprise_id: UUID, data: EnterpriseCreateForm):
+    if data.profile_image:
+        image_path = handle_image_upload(data.profile_image)
+        data.profile_image_path = image_path
+        
+    if data.remove_image:
+        data.profile_image_path = None
+    
+    if data.password:
+        data.hashed_password = pwd_context.hash(data.password)
+        
     enterprise = update_enterprise(db, enterprise_id, data)
     if not enterprise:
         raise HTTPException(status_code=404, detail="Enterprise not found")

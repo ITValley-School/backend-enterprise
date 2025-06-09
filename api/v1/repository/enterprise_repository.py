@@ -50,18 +50,18 @@ def create_enterprise(db: Session, enterprise: EnterpriseCreateForm):
         db.close()
 
 
-def update_enterprise(db: Session, enterprise_id: UUID, data: EnterpriseUpdate) -> Enterprise:
+def update_enterprise(db: Session, enterprise_id: UUID, data: EnterpriseCreateForm) -> Enterprise:
     try:
         enterprise = db.query(Enterprise).filter(Enterprise.id == enterprise_id).first()
         if not enterprise:
             raise HTTPException(status_code=404, detail="Enterprise not found")
 
-        if data.username:
+        if data.cnpj:
             existing = db.query(Enterprise).filter(
-                and_(Enterprise.username == data.username, Enterprise.id != enterprise_id)
+                and_(Enterprise.cnpj == data.cnpj, Enterprise.id != enterprise_id)
             ).first()
             if existing:
-                raise HTTPException(status_code=400, detail="Username is already in use")
+                raise HTTPException(status_code=400, detail="CNPJ is already in use")
 
         if data.email:
             existing_email = db.query(Enterprise).filter(
@@ -70,7 +70,7 @@ def update_enterprise(db: Session, enterprise_id: UUID, data: EnterpriseUpdate) 
             if existing_email:
                 raise HTTPException(status_code=400, detail="E-mail is already in use")
 
-        for field, value in data.model_dump(exclude_unset=True).items():
+        for field, value in data.__dict__.items():
             setattr(enterprise, field, value)
 
         enterprise.updated_at = datetime.now(timezone.utc)

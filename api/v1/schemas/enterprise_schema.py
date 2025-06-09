@@ -41,6 +41,7 @@ class EnterpriseCreateForm:
         responsible_person: str = Form(...),
         country_id: Optional[str] = Form(None),
         profile_image: Optional[UploadFile] = File(None),
+        remove_image: Optional[bool] = Form(False),
     ):
         self.name = name
         self.email = email
@@ -55,6 +56,7 @@ class EnterpriseCreateForm:
         self.responsible_person = responsible_person
         self.country_id = country_id
         self.profile_image = profile_image
+        self.remove_image = remove_image
 
 class EnterpriseUpdate(BaseModel):
     name: Optional[str] = None
@@ -81,7 +83,7 @@ class EnterpriseResponse(EnterpriseBase):
     is_active: bool
     created_at: datetime
     updated_at: datetime
-    profile_image_path: Optional[str] = None
+    profile_image_path: Optional[str]
 
     model_config = {
         "from_attributes": True
