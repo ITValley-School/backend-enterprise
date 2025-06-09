@@ -1,6 +1,7 @@
 from fastapi import HTTPException, status
 from db.models.project import Project
 from db.models.student import Student
+from db.models.task import Task, Deliverable, AcceptanceCriteria
 import uuid
 from datetime import datetime, timezone
 from sqlalchemy import and_
@@ -18,11 +19,13 @@ def get_student_by_email(db: Session, email: str):
     return db.query(Student).filter(Student.email == email, Student.is_active == True).first()
 
 def get_student_with_projects_and_deliverables(db: Session, student_id: str):
-    """Busca o aluno com seus projetos e os entregáveis (deliverables) de cada projeto."""
+    """Busca o aluno com seus projetos, entregáveis e tasks de cada entregável."""
     return db.query(Student).options(
         joinedload(Student.student_projects)
             .joinedload(StudentProject.project)
             .joinedload(Project.deliverables)
+            .joinedload(Deliverable.tasks)
+            .joinedload(Task.acceptance_criteria)
     ).filter(Student.id == student_id, Student.is_active == True).first()
 
 def get_student_deliverables_list(db: Session, student_id: str):
