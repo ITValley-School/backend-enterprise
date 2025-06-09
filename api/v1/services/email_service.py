@@ -60,7 +60,7 @@ class EmailService:
         frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
         reset_url = f"{frontend_url}/reset-password?token={token}&type={user_type}"
         
-        subject = "Recuperação de Senha - Backend Enterprise"
+        subject = "Recuperação de Senha - Task-Demand"
         
         # Versão HTML do email
         html_content = f"""
