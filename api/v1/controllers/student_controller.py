@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from api.v1.repository.dashboard_repository import StudentDashboardRepository
 from api.v1.repository.task_repository import TaskSubmissionRepository
 from api.v1.schemas.task_schema import TaskSubmissionCreate, TaskSubmissionResponse, StudentSubmissionResponse
+from api.v1.schemas.auth_schema import ForgotPasswordRequest, ForgotPasswordResponse, ResetPasswordRequest, ResetPasswordResponse
 from api.v1.services import student_service
 from api.v1.services.project_service import list_visible_projects
 from db.session import get_db
@@ -27,6 +28,7 @@ from api.v1.services.student_service import (
     delete_student_service,
 )
 from api.v1.repository.student_repository import get_student_by_email, get_student_with_projects
+from api.v1.services.password_reset_service import PasswordResetService
 
 router = APIRouter()
 
@@ -155,3 +157,13 @@ def get_student_submissions(student_id: UUID, db: Session = Depends(get_db)):
         return submissions
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/forgot-password", response_model=ForgotPasswordResponse)
+def forgot_password(data: ForgotPasswordRequest, db: Session = Depends(get_db)):
+    """Solicitação de recuperação de senha para estudantes"""
+    return PasswordResetService.generate_reset_token(db, str(data.email), "student")
+
+@router.post("/reset-password", response_model=ResetPasswordResponse)
+def reset_password(data: ResetPasswordRequest, db: Session = Depends(get_db)):
+    """Reset de senha para estudantes usando token"""
+    return PasswordResetService.reset_password(db, data.token, data.new_password)

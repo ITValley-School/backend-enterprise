@@ -3,6 +3,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from api.v1.repository.task_repository import TaskSubmissionRepository
 from api.v1.schemas.task_schema import TaskSubmissionResponse, TaskSubmissionValidate
+from api.v1.schemas.auth_schema import ForgotPasswordRequest, ForgotPasswordResponse, ResetPasswordRequest, ResetPasswordResponse
+from api.v1.services.password_reset_service import PasswordResetService
 from db.session import get_db
 from api.v1.schemas.enterprise_schema import (
     EnterpriseCreateForm,
@@ -77,3 +79,13 @@ def validate_task_submission(
     db: Session = Depends(get_db),
 ):
     return TaskSubmissionRepository.validate_submission(db, submission_id, data)
+
+@router.post("/forgot-password", response_model=ForgotPasswordResponse)
+def forgot_password(data: ForgotPasswordRequest, db: Session = Depends(get_db)):
+    """Solicitação de recuperação de senha para empresas"""
+    return PasswordResetService.generate_reset_token(db, str(data.email), "enterprise")
+
+@router.post("/reset-password", response_model=ResetPasswordResponse)
+def reset_password(data: ResetPasswordRequest, db: Session = Depends(get_db)):
+    """Reset de senha para empresas usando token"""
+    return PasswordResetService.reset_password(db, data.token, data.new_password)
