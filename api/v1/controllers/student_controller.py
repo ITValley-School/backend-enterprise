@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from api.v1.repository.dashboard_repository import StudentDashboardRepository
 from api.v1.repository.task_repository import TaskSubmissionRepository
-from api.v1.schemas.task_schema import TaskSubmissionCreate, TaskSubmissionResponse
+from api.v1.schemas.task_schema import TaskSubmissionCreate, TaskSubmissionResponse, StudentSubmissionResponse
 from api.v1.services import student_service
 from api.v1.services.project_service import list_visible_projects
 from db.session import get_db
@@ -146,3 +146,12 @@ def get_student_deliverables(student_id: UUID, db: Session = Depends(get_db)):
 @router.post("/{student_id}/submissions", response_model=TaskSubmissionResponse)
 def submit_task(student_id: UUID, data: TaskSubmissionCreate, db: Session = Depends(get_db)):
     return TaskSubmissionRepository.create_submission(db, student_id, data)
+
+@router.get("/{student_id}/submissions", response_model=List[StudentSubmissionResponse])
+def get_student_submissions(student_id: UUID, db: Session = Depends(get_db)):
+    """Busca todas as submissões de um estudante"""
+    try:
+        submissions = TaskSubmissionRepository.get_student_submissions(db, str(student_id))
+        return submissions
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

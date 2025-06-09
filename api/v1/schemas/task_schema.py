@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Literal, Optional
+from typing import List, Literal, Optional
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -29,6 +29,30 @@ class TaskSubmissionResponse(BaseModel):
     feedback: Optional[str]
     submitted_at: datetime
     validated_at: Optional[datetime]
+    validator: Optional[EnterpriseResponse]
+
+    model_config = {"from_attributes": True}
+
+class TaskBasicInfo(BaseModel):
+    id: str
+    name: str
+    description: str
+    status: str
+    estimated_time: Optional[float]
+
+    model_config = {"from_attributes": True}
+
+class StudentSubmissionResponse(BaseModel):
+    id: str
+    task_id: str
+    submission_link: Optional[str]
+    branch_name: Optional[str]
+    evidence_file: Optional[str]
+    status: str
+    feedback: Optional[str]
+    submitted_at: datetime
+    validated_at: Optional[datetime]
+    task: TaskBasicInfo
     validator: Optional[EnterpriseResponse]
 
     model_config = {"from_attributes": True}

@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 from uuid import UUID
 from fastapi import HTTPException
 from requests import Session
+from sqlalchemy.orm import joinedload
 
 from api.v1.schemas.task_schema import TaskSubmissionCreate, TaskSubmissionValidate
 from db.models.enterprise import Enterprise
@@ -60,3 +61,24 @@ class TaskSubmissionRepository:
         db.commit()
         db.refresh(submission)
         return submission
+
+    @staticmethod
+    def get_student_submissions(db: Session, student_id: str):
+        """Busca todas as submissões de um estudante com informações da task e validator"""
+        try:
+            student_uuid = str(UUID(str(student_id)))
+        except ValueError:
+            raise HTTPException(status_code=400, detail="UUID do estudante inválido")
+
+        # Verifica se o estudante existe
+        student_exists = db.query(Student).filter(Student.id == student_uuid).first()
+        if not student_exists:
+            raise HTTPException(status_code=404, detail="Estudante não encontrado")
+
+        # Busca todas as submissões do estudante com joins
+        submissions = db.query(TaskSubmission).options(
+            joinedload(TaskSubmission.task),
+            joinedload(TaskSubmission.validator)
+        ).filter(TaskSubmission.student_id == student_uuid).order_by(TaskSubmission.submitted_at.desc()).all()
+
+        return submissions
