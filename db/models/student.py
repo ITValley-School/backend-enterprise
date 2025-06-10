@@ -20,6 +20,7 @@ class Student(Base):
     bio = Column(Text, nullable=True)
     github = Column(String(255), nullable=True)
     linkedin = Column(String(255), nullable=True)
+    welcome = Column(Boolean, default=True, nullable=False)  
     
     # Colunas de controle
     is_active = Column(Boolean, default=True, nullable=False)

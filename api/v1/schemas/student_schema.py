@@ -18,6 +18,7 @@ class StudentCreate(BaseModel):
     bio: Optional[str] = None
     github: Optional[str] = None
     linkedin: Optional[str] = None
+    welcome: Optional[bool] = True
 
 class StudentResponse(BaseModel):
     id: str
@@ -31,6 +32,7 @@ class StudentResponse(BaseModel):
     bio: Optional[str] = None
     github: Optional[str] = None
     linkedin: Optional[str] = None
+    welcome: bool
     is_active: bool
     created_at: datetime
     updated_at: datetime
@@ -56,6 +58,7 @@ class StudentUpdate(BaseModel):
     bio: Optional[str] = None
     github: Optional[str] = None
     linkedin: Optional[str] = None
+    welcome: Optional[bool] = None
 
 StudentRead = StudentResponse
 

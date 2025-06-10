@@ -57,6 +57,7 @@ async def login(data: StudentLoginRequest, db: Session = Depends(get_db)):
             "bio": student.bio,
             "github": student.github,
             "linkedin": student.linkedin,
+            "welcome": student.welcome,
             "is_active": student.is_active,
             "created_at": student.created_at,
             "updated_at": student.updated_at
@@ -167,3 +168,28 @@ def forgot_password(data: ForgotPasswordRequest, db: Session = Depends(get_db)):
 def reset_password(data: ResetPasswordRequest, db: Session = Depends(get_db)):
     """Reset de senha para estudantes usando token"""
     return PasswordResetService.reset_password(db, data.token, data.new_password)
+
+@router.patch("/{student_id}/dismiss-welcome")
+def dismiss_welcome(student_id: UUID, db: Session = Depends(get_db)):
+    """Marca as boas-vindas como visualizadas (welcome = false)"""
+    try:
+        from api.v1.repository.student_repository import get_student_by_id, update_student
+        from api.v1.schemas.student_schema import StudentUpdate
+        
+        # Verificar se estudante existe
+        student = get_student_by_id(db, str(student_id))
+        if not student:
+            raise HTTPException(status_code=404, detail="Student not found")
+        
+        # Atualizar welcome para false
+        update_data = StudentUpdate(welcome=False)
+        updated_student = update_student(db, str(student_id), update_data)
+        
+        return {
+            "message": "Welcome dismissed successfully",
+            "student_id": str(student_id),
+            "welcome": False
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
