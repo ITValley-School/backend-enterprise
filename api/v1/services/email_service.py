@@ -56,8 +56,13 @@ class EmailService:
     def send_password_reset_email(self, to_email: str, token: str, user_name: str, user_type: str):
         """Envia email de recuperação de senha"""
         
-        # URL base do frontend - você pode configurar no .env
-        frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
+        if user_type == "enterprise":
+            # URL base do frontend - você pode configurar no .env
+            frontend_url = os.getenv("FRONTEND_ENTERPRISE_URL", "http://localhost:3000")
+        else:
+            # URL base do frontend - você pode configurar no .env
+            frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
+            
         reset_url = f"{frontend_url}/reset-password?token={token}&type={user_type}"
         
         subject = "Recuperação de Senha - Task-Demand"
