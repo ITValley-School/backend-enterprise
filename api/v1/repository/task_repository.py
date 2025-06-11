@@ -1,13 +1,16 @@
 from datetime import datetime, timezone
+from typing import List
 from uuid import UUID
 from fastapi import HTTPException
 from requests import Session
 from sqlalchemy.orm import joinedload
 
-from api.v1.schemas.task_schema import TaskSubmissionCreate, TaskSubmissionValidate
+from api.v1.schemas.project_schema import ProjectResponse
+from api.v1.schemas.task_schema import DeliverableWithTasks, ProjectResponseSchema, SubmissionWithDeliverable, TaskBasicInfo, TaskSubmissionCreate, TaskSubmissionValidate
 from db.models.enterprise import Enterprise
+from db.models.project import Project
 from db.models.student import Student
-from db.models.task import Task, TaskSubmission
+from db.models.task import Deliverable, Task, TaskSubmission
 
 
 class TaskSubmissionRepository:
@@ -82,3 +85,47 @@ class TaskSubmissionRepository:
         ).filter(TaskSubmission.student_id == student_uuid).order_by(TaskSubmission.submitted_at.desc()).all()
 
         return submissions
+    
+    @staticmethod
+    def get_submissions_grouped_by_deliverable(db: Session, enterprise_id: UUID) -> List[SubmissionWithDeliverable]:
+        submissions = (
+            db.query(TaskSubmission)
+            .join(Task)
+            .join(Deliverable)
+            .join(Project)
+            .filter(Project.enterprise_id == enterprise_id)
+            .order_by(TaskSubmission.submitted_at.desc())
+            .all()
+        )
+
+        results = []
+        for submission in submissions:
+            deliverable = submission.task.deliverable
+            project = deliverable.project
+
+            if not deliverable or not project:
+                continue
+
+            deliverable_with_project = DeliverableWithTasks(
+                id=deliverable.id,
+                name=deliverable.name,
+                status=deliverable.status,
+                tasks=[TaskBasicInfo.from_orm(t) for t in deliverable.tasks],
+                project=ProjectResponseSchema.from_orm(deliverable.project)
+            )
+
+            results.append(SubmissionWithDeliverable(
+                id=submission.id,
+                status=submission.status,
+                submission_link=submission.submission_link,
+                branch_name=submission.branch_name,
+                evidence_file=submission.evidence_file,
+                feedback=submission.feedback,
+                submitted_at=submission.submitted_at,
+                validated_at=submission.validated_at,
+                validator=submission.validator,
+                student=submission.student,
+                deliverable=deliverable_with_project
+            ))
+
+        return results

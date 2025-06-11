@@ -5,6 +5,8 @@ from uuid import UUID
 from pydantic import BaseModel
 
 from api.v1.schemas.enterprise_schema import EnterpriseResponse
+from api.v1.schemas.project_schema import ProjectResponse
+from api.v1.schemas.student_schema import StudentRead
 
 
 class TaskSubmissionCreate(BaseModel):
@@ -54,5 +56,36 @@ class StudentSubmissionResponse(BaseModel):
     validated_at: Optional[datetime]
     task: TaskBasicInfo
     validator: Optional[EnterpriseResponse]
+
+    model_config = {"from_attributes": True}
+    
+class ProjectResponseSchema(BaseModel):
+    id: UUID
+    name: str
+    country: Optional[str] = None
+    description: Optional[str] = None
+    
+    model_config = {"from_attributes": True}
+
+class DeliverableWithTasks(BaseModel):
+    id: str
+    name: str
+    status: str
+    tasks: List[TaskBasicInfo] = []
+    project: ProjectResponseSchema
+
+    model_config = {"from_attributes": True}
+class SubmissionWithDeliverable(BaseModel):
+    id: str
+    status: str
+    submission_link: Optional[str]
+    branch_name: Optional[str]
+    evidence_file: Optional[str]
+    feedback: Optional[str]
+    submitted_at: datetime
+    validated_at: Optional[datetime]
+    validator: Optional[EnterpriseResponse]
+    student: Optional[StudentRead]
+    deliverable: DeliverableWithTasks
 
     model_config = {"from_attributes": True}

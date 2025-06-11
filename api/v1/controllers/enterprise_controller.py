@@ -1,8 +1,9 @@
+from typing import List
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from api.v1.repository.task_repository import TaskSubmissionRepository
-from api.v1.schemas.task_schema import TaskSubmissionResponse, TaskSubmissionValidate
+from api.v1.schemas.task_schema import SubmissionWithDeliverable, TaskSubmissionResponse, TaskSubmissionValidate
 from api.v1.schemas.auth_schema import ForgotPasswordRequest, ForgotPasswordResponse, ResetPasswordRequest, ResetPasswordResponse
 from api.v1.services.password_reset_service import PasswordResetService
 from db.session import get_db
@@ -79,6 +80,13 @@ def validate_task_submission(
     db: Session = Depends(get_db),
 ):
     return TaskSubmissionRepository.validate_submission(db, submission_id, data)
+
+@router.get("/submissions/{enterprise_id}", response_model=List[SubmissionWithDeliverable])
+def list_submissions_for_enterprise(
+    enterprise_id: UUID,
+    db: Session = Depends(get_db)
+):
+    return TaskSubmissionRepository.get_submissions_grouped_by_deliverable(db, enterprise_id)
 
 @router.post("/forgot-password", response_model=ForgotPasswordResponse)
 def forgot_password(data: ForgotPasswordRequest, db: Session = Depends(get_db)):
