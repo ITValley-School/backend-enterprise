@@ -1,4 +1,5 @@
 from typing import List
+from uuid import UUID
 from fastapi import HTTPException
 from sqlalchemy import String, case, cast, extract, func, literal, text
 from sqlalchemy.orm.exc import NoResultFound
@@ -153,6 +154,17 @@ def update_project_status(db: Session, project_id: str, new_status: str):
             raise HTTPException(status_code=400, detail=f"Cannot transition from {current_status} to {new_status}")
 
         project.status = new_status
+        
+        if new_status == "IN_PROGRESS":
+            for deliverable in project.deliverables:
+                if deliverable.status in ["IN_PLANNING"]:
+                    deliverable.status = "IN_DEVELOPMENT"
+                    
+        if new_status == "COMPLETED":
+            for deliverable in project.deliverables:
+                if deliverable.status in ["IN_DEVELOPMENT"]:
+                    deliverable.status = "COMPLETED"
+        
         db.commit()
         db.refresh(project)
         return project
@@ -168,5 +180,13 @@ def get_visible_projects_for_students(db: Session) -> List[Project]:
         )
         .filter(Project.status != "PENDING")
         .order_by(Project.created_at.desc())
+        .all()
+    )
+
+def list_projects_by_enterprise(db: Session, enterprise_id: UUID) -> List[Project]:
+    return (
+        db.query(Project)
+        .filter(Project.enterprise_id == enterprise_id)
+        .order_by(Project.name)
         .all()
     )

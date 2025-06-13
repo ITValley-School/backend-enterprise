@@ -1,8 +1,9 @@
 from datetime import datetime, timezone
-from typing import List
+from typing import List, Optional
 from uuid import UUID
 from fastapi import HTTPException
 from requests import Session
+from sqlalchemy import func, or_
 from sqlalchemy.orm import joinedload
 
 from api.v1.schemas.project_schema import ProjectResponse
@@ -116,6 +117,88 @@ class TaskSubmissionRepository:
 
             results.append(SubmissionWithDeliverable(
                 id=submission.id,
+                task_id=submission.task.id,
+                status=submission.status,
+                submission_link=submission.submission_link,
+                branch_name=submission.branch_name,
+                evidence_file=submission.evidence_file,
+                feedback=submission.feedback,
+                submitted_at=submission.submitted_at,
+                validated_at=submission.validated_at,
+                validator=submission.validator,
+                student=submission.student,
+                deliverable=deliverable_with_project
+            ))
+
+        return results
+
+    @staticmethod
+    def get_filtered_submissions_to_validate(
+        db: Session,
+        enterprise_id: UUID,
+        search: Optional[str] = None,
+        project_id: Optional[UUID] = None,
+        status: Optional[str] = None,
+        limit: int = 50,
+        offset: int = 0
+    ) -> List[SubmissionWithDeliverable]:
+
+        query = (
+            db.query(TaskSubmission)
+            .options(
+                joinedload(TaskSubmission.task)
+                    .joinedload(Task.deliverable)
+                    .joinedload(Deliverable.project),
+                joinedload(TaskSubmission.task)
+                    .joinedload(Task.deliverable)
+                    .joinedload(Deliverable.tasks),
+                joinedload(TaskSubmission.student),
+                joinedload(TaskSubmission.validator)
+            )
+            .join(Task)
+            .join(Deliverable)
+            .join(Project)
+            .join(Student)
+            .filter(Project.enterprise_id == enterprise_id)
+        )
+
+        if search:
+            search_like = f"%{search.lower()}%"
+            query = query.filter(
+                or_(
+                    func.lower(Student.name).like(search_like),
+                    func.lower(Deliverable.name).like(search_like),
+                    func.lower(Task.name).like(search_like),
+                )
+            )
+
+        if project_id:
+            query = query.filter(Project.id == project_id)
+
+        if status:
+            query = query.filter(TaskSubmission.status == status)
+
+        query = query.order_by(TaskSubmission.submitted_at.desc())
+        submissions = query.limit(limit).offset(offset).all()
+
+        results = []
+        for submission in submissions:
+            deliverable = submission.task.deliverable
+            project = deliverable.project if deliverable else None
+            if not deliverable or not project:
+                continue
+
+            deliverable_with_project = DeliverableWithTasks(
+                id=deliverable.id,
+                name=deliverable.name,
+                status=deliverable.status,
+                project=ProjectResponse.from_orm(project),
+                tasks=[TaskBasicInfo.from_orm(task) for task in deliverable.tasks]
+            )
+
+            results.append(SubmissionWithDeliverable(
+                id=submission.id,
+                task_id=submission.task.id,
                 status=submission.status,
                 submission_link=submission.submission_link,
                 branch_name=submission.branch_name,

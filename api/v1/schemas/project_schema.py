@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import List, Optional
+from uuid import UUID
 from pydantic import BaseModel
 
 from api.v1.schemas.student_schema import StudentResponse
@@ -127,3 +128,11 @@ class ProjectList(BaseModel):
     }
 class UpdateStatusInput(BaseModel):
     new_status: str
+
+class ProjectBasicInfo(BaseModel):
+    id: UUID
+    name: str
+
+    model_config = {
+        "from_attributes": True
+    }

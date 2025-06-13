@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -53,6 +53,22 @@ async def login(data: LoginRequest, db: Session = Depends(get_db)):
 @router.post("/", response_model=EnterpriseResponse)
 def create_new_enterprise(data: EnterpriseCreateForm = Depends(), db: Session = Depends(get_db)):
     return create_enterprise_service(data, db)
+
+@router.get("/submissions-to-validate", response_model=List[SubmissionWithDeliverable])
+def list_submissions_to_validate(
+    enterprise_id: UUID,
+    search: Optional[str] = None,
+    project_id: Optional[UUID] = None,
+    status: Optional[str] = None,
+    db: Session = Depends(get_db),
+):
+    return TaskSubmissionRepository.get_filtered_submissions_to_validate(
+        db=db,
+        enterprise_id=enterprise_id,
+        search=search,
+        project_id=project_id,
+        status=status
+    )
 
 
 @router.get("/{enterprise_id}", response_model=EnterpriseResponse)

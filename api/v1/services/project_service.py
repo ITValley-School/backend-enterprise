@@ -9,6 +9,7 @@ from api.v1.repository.project_repository import (
     filter_projects_by_name,
     get_projects_by_enterprise,
     get_visible_projects_for_students,
+    list_projects_by_enterprise,
     save_project_to_sql,
     get_all_projects,
     get_project_by_id,
@@ -121,3 +122,6 @@ def list_visible_projects(db: Session):
         }
 
     return [serialize(p) for p in projects]
+
+async def list_projects_by_enterprise_service(db: Session, enterprise_id: str):
+    return list_projects_by_enterprise(db, enterprise_id)

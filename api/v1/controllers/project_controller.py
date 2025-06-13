@@ -1,8 +1,9 @@
+from typing import List
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from sqlalchemy.orm import Session
 from db.session import get_db
-from api.v1.schemas.project_schema import CompleteProjectInput, ProjectList, ProjectResponse, UpdateProjectInput, UpdateStatusInput
+from api.v1.schemas.project_schema import CompleteProjectInput, ProjectBasicInfo, ProjectList, ProjectResponse, UpdateProjectInput, UpdateStatusInput
 from api.v1.services.project_service import (
     delete_project_service,
     get_filtered_projects,
@@ -11,7 +12,8 @@ from api.v1.services.project_service import (
     list_projects_service,
     publish_project_service,
     update_project_service,
-    update_project_status_service
+    update_project_status_service,
+    list_projects_by_enterprise_service
 )
 
 router = APIRouter()
@@ -22,6 +24,14 @@ async def list_projects_route(db: Session = Depends(get_db)):
         return await list_projects_service(db)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+@router.get("/projects-options", response_model=List[ProjectBasicInfo])
+async def list_projects(
+    enterprise_id: UUID = Query(...),
+    db: Session = Depends(get_db)
+):
+    return await list_projects_by_enterprise_service(db, enterprise_id)
+
     
 @router.post("/publish")
 async def publish_project_route(payload: CompleteProjectInput, db: Session = Depends(get_db)):

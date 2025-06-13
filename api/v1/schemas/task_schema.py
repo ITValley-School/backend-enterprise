@@ -87,5 +87,6 @@ class SubmissionWithDeliverable(BaseModel):
     validator: Optional[EnterpriseResponse]
     student: Optional[StudentRead]
     deliverable: DeliverableWithTasks
+    task_id: str
 
     model_config = {"from_attributes": True}
