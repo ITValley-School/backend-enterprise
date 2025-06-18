@@ -1,11 +1,14 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from db.session import get_db
-from schemas.student_project_schema import StudentProjectCreate, StudentProjectRead
-from services import student_project_service
+from api.v1.schemas.student_project_schema import StudentProjectCreate, StudentProjectRead
+from api.v1.repository.student_project_repository import create_student_project
 
 router = APIRouter()
 
-@router.post("/student-projects", response_model=StudentProjectRead)
-def assign_student_to_project(link: StudentProjectCreate, db: Session = Depends(get_db)):
-    return student_project_service.assign_student_to_project(db, link)
+@router.post("/", response_model=StudentProjectRead)
+def create_student_project_link(
+    link: StudentProjectCreate,
+    db: Session = Depends(get_db)
+):
+    return create_student_project(db=db, link=link)

@@ -152,4 +152,78 @@ class EmailService:
         </html>
         """
         
-        return self.send_email(to_email, subject, html_content, message) 
+        return self.send_email(to_email, subject, html_content, message)
+
+    def send_welcome_email(self, to_email: str, user_name: str, token: str):
+        """Envia email de boas-vindas com link para definir senha"""
+        
+        frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
+        reset_url = f"{frontend_url}/reset-password?token={token}&type=student"
+        
+        subject = "Bem-vindo ao Task-Demand! 🎉"
+        
+        html_content = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <style>
+                body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+                .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                .header {{ background-color: #007bff; color: white; padding: 20px; text-align: center; }}
+                .content {{ padding: 30px; background-color: #f8f9fa; }}
+                .button {{ background-color: #007bff; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; margin: 20px 0; }}
+                .footer {{ padding: 20px; text-align: center; color: #666; font-size: 12px; }}
+                .welcome {{ font-size: 24px; color: #007bff; margin-bottom: 20px; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>🎓 Task-Demand</h1>
+                </div>
+                
+                <div class="content">
+                    <div class="welcome">Bem-vindo(a), {user_name}!</div>
+                    
+                    <p>Estamos muito felizes em ter você conosco! Para começar sua jornada de aprendizado, primeiro você precisa definir sua senha de acesso.</p>
+                    
+                    <p>Clique no botão abaixo para criar sua senha:</p>
+                    
+                    <p style="text-align: center;">
+                        <a href="{reset_url}" class="button">🔐 Criar Senha</a>
+                    </p>
+                    
+                    <p>Após definir sua senha, você terá acesso completo à plataforma e poderá começar seus estudos!</p>
+                    
+                    <p><strong>Link alternativo:</strong><br>
+                    <small>{reset_url}</small></p>
+                </div>
+                
+                <div class="footer">
+                    <p>Este é um email automático, não responda.</p>
+                    <p>© 2024 Task-Demand. Todos os direitos reservados.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        text_content = f"""
+        Bem-vindo ao Task-Demand! 🎉
+        
+        Olá, {user_name}!
+        
+        Estamos muito felizes em ter você conosco! Para começar sua jornada de aprendizado, primeiro você precisa definir sua senha de acesso.
+        
+        Acesse o link abaixo para criar sua senha:
+        {reset_url}
+        
+        Após definir sua senha, você terá acesso completo à plataforma e poderá começar seus estudos!
+        
+        ---
+        Este é um email automático, não responda.
+        © 2024 Task-Demand
+        """
+        
+        return self.send_email(to_email, subject, html_content, text_content) 
