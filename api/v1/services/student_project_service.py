@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from repository import student_project_repository
-from schemas.student_project_schema import StudentProjectCreate
+from api.v1.schemas.student_project_schema import StudentProjectCreate
+from api.v1.repository.student_project_repository import create_student_project
 
-def assign_student_to_project(db: Session, assignment: StudentProjectCreate):
-    return student_project_repository.create_student_project(db, assignment)
+def assign_student_to_project(db: Session, link: StudentProjectCreate):
+    return create_student_project(db=db, link=link)
