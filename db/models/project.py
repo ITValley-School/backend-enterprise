@@ -39,13 +39,11 @@ class Project(Base):
     
     @property
     def progress(self):
-        if not self.deliverables:
+        tasks = [t for d in self.deliverables for t in d.tasks]
+        if not tasks:
             return 0
-        total = len(self.deliverables)
-        concluidas = sum(
-            1 for e in self.deliverables if all(t.status == "Concluída" for t in e.tasks)
-        )
-        return round((concluidas / total) * 100)
+        approved = sum(1 for t in tasks if t.status == "APPROVED")
+        return round((approved / len(tasks)) * 100)
 
     @property
     def team(self):

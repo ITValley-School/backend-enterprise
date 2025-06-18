@@ -59,6 +59,7 @@ class TaskSubmissionRepository:
 
         submission.status = data.status
         submission.feedback = data.feedback
+        submission.task.status = submission.status
         submission.validated_by = str(data.validator_id)
         submission.validated_at = datetime.now(timezone.utc)
 
