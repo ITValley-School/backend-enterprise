@@ -103,6 +103,7 @@ class ProjectResponse(BaseModel):
     status: str
     progress: int
     team: List[StudentResponse]
+    requirements: Optional[str] = None
 
     model_config = {
         "from_attributes": True

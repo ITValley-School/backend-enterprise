@@ -124,7 +124,7 @@ async def delete_project(db: Session, project_id: int) -> bool:
     finally:
         db.close()
 
-def get_projects_by_enterprise(db: Session, enterprise_id: str):
+def get_projects_by_enterprise(db: Session, enterprise_id: str)-> List[Project]:
     try:
         return db.query(Project).options(
             joinedload(Project.students),

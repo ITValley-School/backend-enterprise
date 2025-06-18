@@ -17,8 +17,26 @@ from api.v1.repository.project_repository import (
     delete_project,
     update_project_status
 )
+from api.v1.schemas.project_schema import ProjectResponse
 
 
+
+AZURE_STORAGE_CONNECTION_STRING = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
+blob_service_client = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONNECTION_STRING)
+
+async def load_requirements_from_blob(blob_path: str) -> str:
+    try:
+        blob_full_path = f"{blob_path}/requirements.html"
+        blob_client = blob_service_client.get_blob_client(container="projects", blob=blob_full_path)
+
+        # ✅ Use `await` com download_blob
+        stream = await blob_client.download_blob()
+        content = await stream.readall()
+        return content.decode("utf-8")
+    except Exception as e:
+        print("Erro ao carregar blob:", e)
+        return ""
+    
 async def publish_project_service(db: Session, data):
     connection_str = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
 
@@ -85,8 +103,32 @@ async def update_project_service(db: Session, project_id: int, update_data: dict
 async def delete_project_service(db: Session, project_id: int):
     return await delete_project(db, project_id)
 
-async def list_enterprise_projects(db: Session, enterprise_id: str):
-    return get_projects_by_enterprise(db, enterprise_id)
+async def list_enterprise_projects(db: Session, enterprise_id: str) -> list[ProjectResponse]:
+    projects = get_projects_by_enterprise(db, enterprise_id)
+    responses = []
+    
+    for project in projects:
+        requirements = await load_requirements_from_blob(project.blob_path) if project.blob_path else {}
+
+        responses.append(ProjectResponse(
+            id=project.id,
+            name=project.name,
+            enterprise_id=project.enterprise_id,
+            created_at=project.created_at,
+            deliverables=project.deliverables,
+            description=project.description,
+            technologies=project.technologies,
+            complexity=project.complexity,
+            category=project.category,
+            score=project.score,
+            country=project.country,
+            status=project.status,
+            progress=project.progress,
+            team=project.students,
+            requirements=requirements
+        ))
+
+    return responses
 
 def get_filtered_projects(db: Session, name: str):
     return filter_projects_by_name(db, name)
