@@ -45,7 +45,6 @@ class TaskSubmissionRepository:
 
     @staticmethod
     def validate_submission(db: Session, submission_id: UUID, data: TaskSubmissionValidate):
-        
         enterprise = db.query(Enterprise).filter(Enterprise.id == data.validator_id).first()
         if not enterprise:
             raise HTTPException(status_code=404, detail="Empresa validadora não encontrada")
@@ -59,11 +58,31 @@ class TaskSubmissionRepository:
 
         submission.status = data.status
         submission.feedback = data.feedback
-        submission.task.status = submission.status
+        submission.task.status = data.status
         submission.validated_by = str(data.validator_id)
         submission.validated_at = datetime.now(timezone.utc)
 
         db.commit()
+
+        # verifica se ainda existem tasks pendentes ou rejeitadas no mesmo entregável
+        deliverable_id = submission.task.deliverable_id
+
+        remaining_tasks = (
+            db.query(TaskSubmission)
+            .join(Task)
+            .filter(
+                Task.deliverable_id == deliverable_id,
+                TaskSubmission.status != "APPROVED"
+            )
+            .all()
+        )
+
+        if not remaining_tasks:
+            deliverable = db.query(Deliverable).filter(Deliverable.id == deliverable_id).first()
+            if deliverable:
+                deliverable.status = "COMPLETED"
+                db.commit()
+
         db.refresh(submission)
         return submission
 
