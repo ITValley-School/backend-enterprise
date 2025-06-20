@@ -1,20 +1,23 @@
+from uuid import UUID, uuid4
 from sqlalchemy.orm import Session
 from api.v1.repository import student_repository
 from api.v1.repository.student_repository import (
-    create_student as repo_create_student,
     get_student_by_id,
     get_all_students,
+    repo_create_student,
     get_student_deliverables_list,
     update_student as repo_update_student,
     delete_student as repo_delete_student
 )
-from api.v1.schemas.student_schema import StudentCreate, StudentUpdate, StudentDeliverableResponse
-from fastapi import HTTPException
+from api.v1.schemas.student_schema import StudentCreateForm, StudentUpdate, StudentDeliverableResponse, StudentUpdateForm
+from fastapi import HTTPException, UploadFile, status
 from passlib.context import CryptContext
 from jose import jwt
 from datetime import datetime, timedelta, timezone
 import os
 from dotenv import load_dotenv
+
+from db.models.student import Student
 
 load_dotenv()
 
@@ -33,8 +36,33 @@ def create_access_token(data: dict):
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-def create_student(db: Session, student_data: StudentCreate):
-    return repo_create_student(db, student_data)
+def create_student_service(data: StudentCreateForm, db: Session):
+    existing = db.query(Student).filter(Student.email == data.email).first()
+    if existing:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email already exists",
+        )
+
+    hashed_password = pwd_context.hash(data.password)
+    image_path = handle_image_upload(data.profile_image)
+
+    db_student = Student(
+        name=data.name,
+        email=data.email,
+        password=hashed_password,
+        phone=data.phone,
+        role=data.role,
+        location=data.location,
+        cargo=data.cargo,
+        bio=data.bio,
+        github=data.github,
+        linkedin=data.linkedin,
+        photo=image_path,
+    )
+
+    return repo_create_student(db, db_student)
+
 
 def list_students(db: Session):
     return get_all_students(db)
@@ -45,10 +73,36 @@ def get_student_by_id_service(db: Session, student_id: str):
         raise HTTPException(status_code=404, detail="Student not found")
     return student
 
-def update_student_service(db: Session, student_id: str, data: StudentUpdate):
-    student = repo_update_student(db, student_id, data)
+def update_student_service(student_id: UUID, data: StudentUpdateForm, db: Session):
+    student = db.query(Student).filter(Student.id == student_id).first()
+
     if not student:
         raise HTTPException(status_code=404, detail="Student not found")
+
+    student.name = data.name
+    student.email = data.email
+    student.phone = data.phone
+    student.role = data.role or student.role
+    student.location = data.location
+    student.cargo = data.cargo
+    student.bio = data.bio
+    student.github = data.github
+    student.linkedin = data.linkedin
+    
+    if data.remove_image:
+        student.photo = None
+
+    # Só atualiza senha se for enviada
+    if data.password:
+        student.password = pwd_context.hash(data.password)
+
+    # Atualiza imagem se enviada
+    if data.profile_image:
+        student.photo = handle_image_upload(data.profile_image)
+
+
+    db.commit()
+    db.refresh(student)
     return student
 
 def delete_student_service(db: Session, student_id: str):
@@ -74,3 +128,15 @@ def list_deliverables_for_student(db: Session, student_id: str):
         formatted_deliverables.append(formatted_deliverable)
     
     return formatted_deliverables
+
+
+def handle_image_upload(image: UploadFile, base_path="static/uploads/students/"):
+    if not image:
+        return None
+    ext = image.filename.split(".")[-1]
+    filename = f"{uuid4().hex}_{datetime.utcnow().timestamp()}.{ext}"
+    os.makedirs(base_path, exist_ok=True)
+    file_path = os.path.join(base_path, filename)
+    with open(file_path, "wb") as f:
+        f.write(image.file.read())
+    return file_path

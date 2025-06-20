@@ -1,6 +1,6 @@
-from typing import List
+from typing import List, Optional
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 from api.v1.repository.dashboard_repository import StudentDashboardRepository
 from api.v1.repository.task_repository import TaskSubmissionRepository
@@ -10,18 +10,18 @@ from api.v1.services import student_service
 from api.v1.services.project_service import list_visible_projects
 from db.session import get_db
 from api.v1.schemas.student_schema import (
+    StudentCreateForm,
     StudentDashboardResponse,
     StudentLoginRequest, 
     StudentTokenResponse, 
-    StudentCreate, 
-    StudentResponse, 
-    StudentUpdate
+    StudentResponse,
+    StudentUpdateForm, 
 )
 from api.v1.services.student_service import (
     create_access_token,
+    create_student_service,
     list_deliverables_for_student, 
     verify_password, 
-    create_student,
     list_students,
     get_student_by_id_service,
     update_student_service, 
@@ -65,11 +65,35 @@ async def login(data: StudentLoginRequest, db: Session = Depends(get_db)):
     }
 
 @router.post("/", response_model=StudentResponse)
-def create_new_student(student: StudentCreate, db: Session = Depends(get_db)):
-    db_student = get_student_by_email(db, student.email)
-    if db_student:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    return create_student(db, student)
+def create_new_student(
+    name: str = Form(...),
+    email: str = Form(...),
+    password: str = Form(...),
+    phone: str = Form(...),
+    role: str = Form(...),
+    location: str = Form(...),
+    cargo: str = Form(...),
+    bio: str = Form(...),
+    github: str = Form(...),
+    linkedin: str = Form(...),
+    profile_image: Optional[UploadFile] = File(None),
+    db: Session = Depends(get_db),
+):
+    form_data = StudentCreateForm(
+        name=name,
+        email=email,
+        password=password,
+        phone=phone,
+        role=role,
+        location=location,
+        cargo=cargo,
+        bio=bio,
+        github=github,
+        linkedin=linkedin,
+        profile_image=profile_image,
+    )
+
+    return create_student_service(form_data, db)
 
 @router.get("/", response_model=List[StudentResponse])
 def get_students(db: Session = Depends(get_db)):
@@ -113,8 +137,38 @@ def get_student_projects(student_id: str, db: Session = Depends(get_db)):
     }
 
 @router.put("/{student_id}", response_model=StudentResponse)
-def update_student(student_id: str, data: StudentUpdate, db: Session = Depends(get_db)):
-    return update_student_service(db, student_id, data)
+def update_student(
+    student_id: UUID,
+    name: Optional[str] = Form(None),
+    email: Optional[str] = Form(None),
+    password: Optional[str] = Form(None),
+    phone: Optional[str] = Form(None),
+    role: Optional[str] = Form(None),
+    location: Optional[str] = Form(None),
+    cargo: Optional[str] = Form(None),
+    bio: Optional[str] = Form(None),
+    github: Optional[str] = Form(None),
+    linkedin: Optional[str] = Form(None),
+    profile_image: Optional[UploadFile] = File(None),
+    remove_image: Optional[bool] = Form(False),
+    db: Session = Depends(get_db)
+):
+    form_data = StudentUpdateForm(
+        name=name,
+        email=email,
+        password=password,
+        phone=phone,
+        role=role,
+        location=location,
+        cargo=cargo,
+        bio=bio,
+        github=github,
+        linkedin=linkedin,
+        profile_image=profile_image,
+        remove_image=remove_image
+    )
+
+    return update_student_service(student_id, form_data, db)
 
 @router.delete("/{student_id}", status_code=204)
 def delete_student(student_id: str, db: Session = Depends(get_db)):

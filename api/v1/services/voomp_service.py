@@ -6,7 +6,7 @@ import string
 
 from api.v1.schemas.voomp_schema import VoompWebhookPayload
 from api.v1.schemas.student_schema import StudentCreate
-from api.v1.services.student_service import create_student
+from api.v1.services.student_service import repo_create_student
 from api.v1.services.password_reset_service import PasswordResetService
 from api.v1.services.email_service import EmailService
 from db.models.student import Student
@@ -46,7 +46,7 @@ class VoompService:
         )
         
         # Cria o estudante no banco
-        new_student = create_student(db=db, student=student_data)
+        new_student = repo_create_student(db=db, student=student_data)
         
         # Gera token de redefinição de senha
         password_reset_service = PasswordResetService()

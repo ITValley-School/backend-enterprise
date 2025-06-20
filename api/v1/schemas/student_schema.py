@@ -1,3 +1,4 @@
+from fastapi import File, Form, UploadFile
 from pydantic import BaseModel, EmailStr
 from typing import Optional, List
 from datetime import datetime
@@ -104,3 +105,29 @@ class StudentDeliverableResponse(BaseModel):
     model_config = {
         "from_attributes": True
     }
+
+class StudentCreateForm(BaseModel):
+    name: str = Form(...)
+    email: str = Form(...)
+    password: str = Form(...)
+    phone: str = Form(...)
+    role: str = Form(...)
+    location: str = Form(...)
+    cargo: str = Form(...)
+    bio: str = Form(...)
+    github: str = Form(...)
+    linkedin: str = Form(...)
+    profile_image: Optional[UploadFile] = None
+class StudentUpdateForm(BaseModel):
+    name: Optional[str] = None
+    email: Optional[str] = None
+    password: Optional[str] = None
+    phone: Optional[str] = None
+    role: Optional[str] = None
+    location: Optional[str] = None
+    cargo: Optional[str] = None
+    bio: Optional[str] = None
+    github: Optional[str] = None
+    linkedin: Optional[str] = None
+    profile_image: Optional[UploadFile] = None
+    remove_image: Optional[bool] = Form(False)

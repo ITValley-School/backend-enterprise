@@ -228,3 +228,7 @@ Pipfile.lock
 static/uploads/enterprises/**
 !static/uploads/enterprises/
 !static/uploads/enterprises/.gitkeep
+
+static/uploads/students/**
+!static/uploads/students/
+!static/uploads/students/.gitkeep

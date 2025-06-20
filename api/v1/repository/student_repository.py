@@ -1,13 +1,13 @@
-from fastapi import HTTPException, status
+from fastapi import HTTPException
 from db.models.project import Project
 from db.models.student import Student
-from db.models.task import Task, Deliverable, AcceptanceCriteria
+from db.models.task import Task, Deliverable
 import uuid
 from datetime import datetime, timezone
 from sqlalchemy import and_
 from sqlalchemy.orm import joinedload, Session
 from passlib.context import CryptContext
-from api.v1.schemas.student_schema import StudentCreate, StudentUpdate
+from api.v1.schemas.student_schema import StudentUpdate
 from db.models.student_project import StudentProject
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -45,34 +45,11 @@ def get_student_with_projects(db: Session, student_id: str):
         joinedload(Student.student_projects).joinedload(StudentProject.project)
     ).filter(Student.id == student_id, Student.is_active == True).first()
         
-def create_student(db: Session, student: StudentCreate):
-    existing_student = db.query(Student).filter(Student.email == student.email).first()
-    if existing_student:
-        raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Email already exists",
-                )
-    
-    # Criptografar a senha antes de salvar
-    hashed_password = pwd_context.hash(student.password)
-    
-    db_student = Student(
-        name=student.name,
-        email=student.email,
-        password=hashed_password,
-        phone=student.phone,
-        role=student.role,
-        location=student.location,
-        photo=student.photo,
-        cargo=student.cargo,
-        bio=student.bio,
-        github=student.github,
-        linkedin=student.linkedin,
-    )
-    db.add(db_student)
+def repo_create_student(db: Session, student: Student):
+    db.add(student)
     db.commit()
-    db.refresh(db_student)
-    return db_student
+    db.refresh(student)
+    return student
 
 def get_all_students(db: Session):
     return db.query(Student).filter(Student.is_active == True).all()
