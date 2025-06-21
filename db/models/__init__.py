@@ -5,3 +5,4 @@ from .student import Student
 from .student_project import StudentProject
 from .country import Country
 from .password_reset import PasswordResetToken, UserType
+from .chat_message import ChatMessage

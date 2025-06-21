@@ -33,6 +33,7 @@ class StudentResponse(BaseModel):
     bio: Optional[str] = None
     github: Optional[str] = None
     linkedin: Optional[str] = None
+    project_count: Optional[float] = 0
     welcome: bool
     is_active: bool
     created_at: datetime

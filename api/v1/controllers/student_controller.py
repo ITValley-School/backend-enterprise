@@ -1,6 +1,6 @@
 from typing import List, Optional
 from uuid import UUID
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
 from sqlalchemy.orm import Session
 from api.v1.repository.dashboard_repository import StudentDashboardRepository
 from api.v1.repository.task_repository import TaskSubmissionRepository
@@ -96,8 +96,8 @@ def create_new_student(
     return create_student_service(form_data, db)
 
 @router.get("/", response_model=List[StudentResponse])
-def get_students(db: Session = Depends(get_db)):
-    return list_students(db)
+def get_students(enterprise_id: str = Query(...), db: Session = Depends(get_db)):
+    return list_students(db, enterprise_id)
 
 @router.get("/visible-projects")
 def get_visible_projects(db: Session = Depends(get_db)):

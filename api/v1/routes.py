@@ -1,6 +1,6 @@
 from fastapi import FastAPI, APIRouter
 from fastapi.staticfiles import StaticFiles
-from api.v1.controllers import agent_project_deliver_controller, enterprise_controller, project_controller, student_controller, dashboard_controller, country_controller, auth_controller, student_project_controller, voomp_controller
+from api.v1.controllers import agent_project_deliver_controller, chat_ws_controller, enterprise_controller, project_controller, student_controller, dashboard_controller, country_controller, auth_controller, student_project_controller, voomp_controller
 
 
 
@@ -39,6 +39,8 @@ def setup_routes(app: FastAPI) -> None:
 
     # Rotas de webhook da Voomp
     api_router.include_router(voomp_controller.router, prefix="/voomp", tags=["voomp"])
+    
+    api_router.include_router(chat_ws_controller.router, prefix="/chat", tags=["chat"])
 
     app.include_router(api_router)
     app.mount("/static", StaticFiles(directory="static"), name="static")

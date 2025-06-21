@@ -4,7 +4,7 @@ from db.models.student import Student
 from db.models.task import Task, Deliverable
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import and_
+from sqlalchemy import and_, func
 from sqlalchemy.orm import joinedload, Session
 from passlib.context import CryptContext
 from api.v1.schemas.student_schema import StudentUpdate
@@ -51,9 +51,47 @@ def repo_create_student(db: Session, student: Student):
     db.refresh(student)
     return student
 
-def get_all_students(db: Session):
-    return db.query(Student).filter(Student.is_active == True).all()
+def get_all_students(db: Session, enterprise_id: str):
+    subquery = (
+        db.query(
+            StudentProject.student_id,
+            func.count(Project.id).label("project_count")
+        )
+        .join(Project, Project.id == StudentProject.project_id)
+        .filter(Project.enterprise_id == enterprise_id)
+        .group_by(StudentProject.student_id)
+        .subquery()
+    )
 
+    result = (
+        db.query(Student, subquery.c.project_count)
+        .join(subquery, Student.id == subquery.c.student_id)  # <-- INNER JOIN 
+        .filter(Student.is_active == True)
+        .all()
+    )
+
+    return [
+        {
+            "id": student.id,
+            "name": student.name,
+            "email": student.email,
+            "phone": student.phone,
+            "role": student.role,
+            "location": student.location,
+            "photo": student.photo,
+            "cargo": student.cargo,
+            "bio": student.bio,
+            "github": student.github,
+            "linkedin": student.linkedin,
+            "welcome": student.welcome,
+            "is_active": student.is_active,
+            "created_at": student.created_at,
+            "updated_at": student.updated_at,
+            "project_count": project_count
+        }
+        for student, project_count in result
+    ]
+    
 def get_all_students_by_project(db: Session, student_id: str):
     student = db.query(Student).filter(Student.id == student_id).first()
     if not student:

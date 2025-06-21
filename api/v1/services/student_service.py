@@ -64,8 +64,8 @@ def create_student_service(data: StudentCreateForm, db: Session):
     return repo_create_student(db, db_student)
 
 
-def list_students(db: Session):
-    return get_all_students(db)
+def list_students(db: Session, enterprise_id: str):
+    return get_all_students(db, enterprise_id)
 
 def get_student_by_id_service(db: Session, student_id: str):
     student = get_student_by_id(db, student_id)
