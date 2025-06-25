@@ -7,6 +7,7 @@ from sqlalchemy import func, or_
 from sqlalchemy.orm import joinedload
 
 from api.v1.schemas.project_schema import ProjectResponse
+from api.v1.schemas.student_schema import StudentResponse
 from api.v1.schemas.task_schema import DeliverableWithTasks, ProjectResponseSchema, SubmissionWithDeliverable, TaskBasicInfo, TaskSubmissionCreate, TaskSubmissionValidate
 from db.models.enterprise import Enterprise
 from db.models.project import Project
@@ -23,22 +24,48 @@ class TaskSubmissionRepository:
         except ValueError:
             raise HTTPException(status_code=400, detail="UUID inválido")
 
-        task_exists = db.query(Task).filter(Task.id == task_id).first()
-        if not task_exists:
+        task = db.query(Task).filter(Task.id == task_id).first()
+        if not task:
             raise HTTPException(status_code=404, detail="Tarefa não encontrada.")
 
-        student_exists = db.query(Student).filter(Student.id == student_id).first()
-        if not student_exists:
+        student = db.query(Student).filter(Student.id == student_id).first()
+        if not student:
             raise HTTPException(status_code=404, detail="Aluno não encontrado.")
+
+        last_submission = (
+            db.query(TaskSubmission)
+            .filter(
+                TaskSubmission.task_id == task_id,
+                TaskSubmission.student_id == student_id
+            )
+            .order_by(TaskSubmission.submitted_at.desc())
+            .first()
+        )
+
+        if last_submission and last_submission.status == "REJECTED":
+            last_submission.submission_link = data.submission_link
+            last_submission.branch_name = data.branch_name
+            last_submission.evidence_file = data.evidence_file
+            last_submission.status = "PENDING"
+            last_submission.submitted_at = datetime.utcnow()
+            db.commit()
+            db.refresh(last_submission)
+            return last_submission
+
+        if last_submission:
+            raise HTTPException(status_code=409, detail="Tarefa já submetida e ainda está em validação.")
 
         submission = TaskSubmission(
             task_id=task_id,
             student_id=student_id,
             submission_link=data.submission_link,
             branch_name=data.branch_name,
-            evidence_file=data.evidence_file
+            evidence_file=data.evidence_file,
+            status="PENDING",
+            submitted_at=datetime.utcnow()
         )
         db.add(submission)
+        task.status = "PENDING"
         db.commit()
         db.refresh(submission)
         return submission
@@ -182,6 +209,10 @@ class TaskSubmissionRepository:
             .filter(Project.enterprise_id == enterprise_id)
         )
 
+        if status:
+            query = query.filter(TaskSubmission.status == status)
+
+
         if search:
             search_like = f"%{search.lower()}%"
             query = query.filter(
@@ -194,9 +225,6 @@ class TaskSubmissionRepository:
 
         if project_id:
             query = query.filter(Project.id == project_id)
-
-        if status:
-            query = query.filter(TaskSubmission.status == status)
 
         query = query.order_by(TaskSubmission.submitted_at.desc())
         submissions = query.limit(limit).offset(offset).all()
@@ -227,7 +255,7 @@ class TaskSubmissionRepository:
                 submitted_at=submission.submitted_at,
                 validated_at=submission.validated_at,
                 validator=submission.validator,
-                student=submission.student,
+                student=StudentResponse.from_orm(submission.student),
                 deliverable=deliverable_with_project
             ))
 

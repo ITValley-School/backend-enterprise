@@ -75,6 +75,13 @@ class DeliverableWithTasks(BaseModel):
     project: ProjectResponseSchema
 
     model_config = {"from_attributes": True}
+class StudentResponse(BaseModel):
+    id: UUID
+    name: str
+    email: str
+    photo: Optional[str]
+    
+    model_config = {"from_attributes": True}
 class SubmissionWithDeliverable(BaseModel):
     id: str
     status: str
@@ -85,8 +92,8 @@ class SubmissionWithDeliverable(BaseModel):
     submitted_at: datetime
     validated_at: Optional[datetime]
     validator: Optional[EnterpriseResponse]
-    student: Optional[StudentRead]
     deliverable: DeliverableWithTasks
+    student: StudentResponse
     task_id: str
 
     model_config = {"from_attributes": True}
