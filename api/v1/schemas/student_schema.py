@@ -48,6 +48,14 @@ class StudentTokenResponse(BaseModel):
     token_type: str = "bearer"
     student: StudentResponse
 
+class StudentLogoutResponse(BaseModel):
+    message: str
+    logged_out_at: datetime
+
+    model_config = {
+        "from_attributes": True
+    }
+
 class StudentUpdate(BaseModel):
     name: Optional[str] = None
     email: Optional[EmailStr] = None
@@ -119,6 +127,7 @@ class StudentCreateForm(BaseModel):
     github: str = Form(...)
     linkedin: str = Form(...)
     profile_image: Optional[UploadFile] = None
+
 class StudentUpdateForm(BaseModel):
     name: Optional[str] = None
     email: Optional[str] = None
@@ -132,3 +141,31 @@ class StudentUpdateForm(BaseModel):
     linkedin: Optional[str] = None
     profile_image: Optional[UploadFile] = None
     remove_image: Optional[bool] = Form(False)
+
+class StudentProjectResponse(BaseModel):
+    """Schema para projeto na resposta dos projetos do estudante"""
+    id: str
+    name: str
+    description: str
+    technologies: List[str]
+    complexity: str
+    category: str
+    score: str
+    country: str
+    status: str
+    joined_at: datetime
+    created_at: datetime
+
+    model_config = {
+        "from_attributes": True
+    }
+
+class StudentProjectsResponse(BaseModel):
+    """Schema para resposta completa dos projetos do estudante"""
+    student_id: str
+    student_name: str
+    projects: List[StudentProjectResponse]
+
+    model_config = {
+        "from_attributes": True
+    }

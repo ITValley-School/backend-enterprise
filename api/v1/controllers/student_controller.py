@@ -16,6 +16,8 @@ from api.v1.schemas.student_schema import (
     StudentTokenResponse, 
     StudentResponse,
     StudentUpdateForm, 
+    StudentProjectsResponse,
+    StudentLogoutResponse,
 )
 from api.v1.services.student_service import (
     create_access_token,
@@ -62,6 +64,16 @@ async def login(data: StudentLoginRequest, db: Session = Depends(get_db)):
             "created_at": student.created_at,
             "updated_at": student.updated_at
         }
+    }
+
+@router.post("/logout", response_model=StudentLogoutResponse)
+async def logout():
+    """Endpoint de logout para estudantes"""
+    from datetime import datetime, timezone
+    
+    return {
+        "message": "Logout realizado com sucesso", 
+        "logged_out_at": datetime.now(timezone.utc)
     }
 
 @router.post("/", response_model=StudentResponse)
@@ -126,6 +138,7 @@ def get_student_projects(student_id: str, db: Session = Depends(get_db)):
             "category": project.category,
             "score": project.score,
             "country": project.country,
+            "status": project.status.value if hasattr(project.status, 'value') else str(project.status),  # Campo status incluído
             "joined_at": student_project.joined_at,
             "created_at": project.created_at
         })
@@ -173,10 +186,6 @@ def update_student(
 @router.delete("/{student_id}", status_code=204)
 def delete_student(student_id: str, db: Session = Depends(get_db)):
     delete_student_service(db, student_id)
-
-@router.get("/{student_id}/projects")
-def get_projects_by_student(student_id: UUID, db: Session = Depends(get_db)):
-    return student_service.get_projects_by_student(db, student_id)
 
 @router.post("/{student_id}/projects/{project_id}")
 def link_student_to_project(student_id: UUID, project_id: UUID, db: Session = Depends(get_db)):
