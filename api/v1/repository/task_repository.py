@@ -32,6 +32,10 @@ class TaskSubmissionRepository:
         if not student:
             raise HTTPException(status_code=404, detail="Aluno não encontrado.")
 
+        deliverable = db.query(Deliverable).filter(Deliverable.id == task.deliverable_id).first()
+        if not deliverable:
+            raise HTTPException(status_code=404, detail="Entregável não encontrado.")
+
         last_submission = (
             db.query(TaskSubmission)
             .filter(
@@ -48,6 +52,10 @@ class TaskSubmissionRepository:
             last_submission.evidence_file = data.evidence_file
             last_submission.status = "PENDING"
             last_submission.submitted_at = datetime.utcnow()
+
+            task.status = "PENDING"
+            deliverable.status = "IN_DEVELOPMENT"
+
             db.commit()
             db.refresh(last_submission)
             return last_submission
@@ -65,7 +73,10 @@ class TaskSubmissionRepository:
             submitted_at=datetime.utcnow()
         )
         db.add(submission)
+
         task.status = "PENDING"
+        deliverable.status = "IN_DEVELOPMENT"
+
         db.commit()
         db.refresh(submission)
         return submission
@@ -89,11 +100,16 @@ class TaskSubmissionRepository:
         submission.validated_by = str(data.validator_id)
         submission.validated_at = datetime.now(timezone.utc)
 
+        #se for rejeitada, atualiza deliverable para "IN_DEVELOPMENT"
+        if data.status == "REJECTED":
+            deliverable = db.query(Deliverable).filter(Deliverable.id == submission.task.deliverable_id).first()
+            if deliverable:
+                deliverable.status = "IN_DEVELOPMENT"
+
         db.commit()
 
-        # verifica se ainda existem tasks pendentes ou rejeitadas no mesmo entregável
+        #se não há mais pendências, marca o entregável como concluído
         deliverable_id = submission.task.deliverable_id
-
         remaining_tasks = (
             db.query(TaskSubmission)
             .join(Task)
