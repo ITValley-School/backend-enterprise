@@ -65,7 +65,7 @@ class TaskSubmission(Base):
     branch_name = Column(String(255), nullable=True)
     evidence_file = Column(String(500), nullable=True)
     status = Column(String(20), default="PENDING")
-    feedback = Column(Text, nullable=True)
+    feedback = Column(String(150), nullable=True)
     submitted_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     validated_at = Column(DateTime(timezone=True), nullable=True)
 

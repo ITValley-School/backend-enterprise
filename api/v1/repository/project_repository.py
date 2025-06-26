@@ -16,8 +16,8 @@ valid_transitions = {
     "PENDING": ["OPEN", "CANCELLED"],
     "OPEN": ["IN_PROGRESS", "CANCELLED"],
     "IN_PROGRESS": ["COMPLETED", "CANCELLED"],
-    "COMPLETED": [],
-    "CANCELLED": []
+    "COMPLETED": ["IN_PROGRESS"],
+    "CANCELLED": ["IN_PROGRESS"]
 }
 
 
