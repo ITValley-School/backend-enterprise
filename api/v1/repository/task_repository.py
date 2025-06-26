@@ -78,8 +78,8 @@ class TaskSubmissionRepository:
 
         task.status = "PENDING"
         deliverable.status = "IN_DEVELOPMENT"
-        last_submission.feedback = ""
-        last_submission.validated_by = ""
+        # last_submission.feedback = ""
+        # last_submission.validated_by = ""
 
         db.commit()
         db.refresh(submission)
