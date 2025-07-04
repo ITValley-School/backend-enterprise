@@ -95,8 +95,8 @@ class EmailService:
                     
                     <p>Clique no botão abaixo para criar uma nova senha:</p>
                     
-                    <p style="text-align: center;">
-                        <a href="{reset_url}" class="button">🔑 Redefinir Senha</a>
+                    <p style="text-align: center; color: white !important;">
+                        <a href="{reset_url}" class="button" style="color: white !important;">🔑 Redefinir Senha</a>
                     </p>
                     
                     <div class="warning">
