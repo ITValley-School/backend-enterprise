@@ -5,8 +5,10 @@ from sqlalchemy import and_
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 
-from api.v1.schemas.enterprise_schema import EnterpriseCreateForm, EnterpriseUpdate
+from api.v1.schemas.enterprise_schema import EnterpriseCreateForm, EnterpriseResponse, EnterpriseUpdate
 from db.models.enterprise import Enterprise
+from db.models.project import Project
+from db.models.student_project import StudentProject
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -98,3 +100,20 @@ def delete_enterprise(db: Session, enterprise_id: UUID) -> bool:
         return enterprise
     finally:
         db.close()
+
+def list_enterprises_by_student(db: Session, student_id: UUID):
+    """
+    Retorna todas as enterprises relacionadas a um student (onde ele participa de projetos).
+    """
+    query = (
+        db.query(Enterprise)
+        .join(Project, Project.enterprise_id == Enterprise.id)
+        .join(StudentProject, StudentProject.project_id == Project.id)
+        .filter(StudentProject.student_id == student_id)
+        .filter(Enterprise.is_active == True)
+        .distinct()
+    )
+
+    enterprises = query.all()
+
+    return [EnterpriseResponse.model_validate(e) for e in enterprises]

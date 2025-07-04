@@ -24,6 +24,7 @@ from api.v1.services.enterprise_service import (
 from api.v1.repository.enterprise_repository import (
     get_enterprise_by_email,
     get_enterprise_by_id,
+    list_enterprises_by_student,
 )
 
 router = APIRouter()
@@ -78,6 +79,12 @@ def read_enterprise(enterprise_id: UUID, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Enterprise not found")
     return EnterpriseResponse.model_validate(enterprise)
 
+@router.get("/{student_id}/enterprises", response_model=List[EnterpriseResponse])
+def get_enterprises_by_student(student_id: UUID, db: Session = Depends(get_db)):
+    enterprises = list_enterprises_by_student(db, student_id)
+    if not enterprises:
+        raise HTTPException(status_code=404, detail="No enterprises found for this student")
+    return enterprises
 
 @router.put("/{enterprise_id}", response_model=EnterpriseResponse)
 def update_enterprise(enterprise_id: UUID, data: EnterpriseCreateForm = Depends(), db: Session = Depends(get_db)):

@@ -1,3 +1,4 @@
+from datetime import datetime
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
 from sqlalchemy.orm import Session
 from api.v1.repository.chat_repository import save_message
@@ -10,29 +11,43 @@ manager = ConnectionManager()
 router = APIRouter()
 
 
-@router.websocket("/ws/{user_id}")
-async def websocket_endpoint(websocket: WebSocket, user_id: str, db: Session = Depends(get_db)):
+@router.websocket("/ws/{channel_id}/{user_id}")
+async def websocket_endpoint(websocket: WebSocket, channel_id: str, user_id: str, db: Session = Depends(get_db)):
     await websocket.accept()
 
-    await manager.connect(websocket, user_id)
+    await manager.connect(websocket, channel_id, user_id)
     try:
         while True:
             data = await websocket.receive_text()
             try:
                 message_data = json.loads(data)
-                to = message_data["to"]
+                from_id = message_data["from"]
+                to_id = message_data["to"]
                 content = message_data["message"]
 
-                save_message(db, from_id=user_id, to_id=to, content=content)
+                save_message(db, from_id=from_id, to_id=to_id, content=content)
 
-                await manager.send_personal_message(f"{user_id}: {content}", to)
-
-                await websocket.send_text(f"Mensagem enviada para {to}")
+                # Broadcast para todos no canal
+                await manager.send_channel_message({
+                    "from_id": from_id,
+                    "to_id": to_id,
+                    "content": content,
+                    "created_at": str(datetime.utcnow())
+                }, channel_id)
             except (KeyError, json.JSONDecodeError):
-                await websocket.send_text("Formato inválido. Envie JSON: {\"to\": \"destinatario\", \"message\": \"sua mensagem\"}")
+                await websocket.send_text("Formato inválido. Envie JSON: {\"from\": \"...\", \"to\": \"...\", \"message\": \"...\"}")
     except WebSocketDisconnect:
-        manager.disconnect(websocket, user_id)
+        manager.disconnect(websocket, channel_id)
 
+@router.websocket("/ws/presence-{user_id}")
+async def presence_websocket(websocket: WebSocket, user_id: str):
+    await websocket.accept()
+    await manager.connect(websocket, f"presence-{user_id}", user_id)
+    try:
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        manager.disconnect(websocket, f"presence-{user_id}")
 
 @router.get("/history/{user1_id}/{user2_id}")
 def chat_history(user1_id: str, user2_id: str, db: Session = Depends(get_db)):
