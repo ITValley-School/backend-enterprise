@@ -5,8 +5,6 @@ from sqlalchemy.orm import relationship
 import uuid
 from db.base import Base
 
-
-
 class ChatMessage(Base):
     __tablename__ = "chat_messages"
     __table_args__ = {"schema": "tkse"}

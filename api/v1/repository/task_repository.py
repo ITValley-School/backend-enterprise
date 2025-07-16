@@ -48,6 +48,7 @@ class TaskSubmissionRepository:
 
         if last_submission and last_submission.status == "REJECTED":
             last_submission.submission_link = data.submission_link
+            last_submission.link_deploy = data.link_deploy
             last_submission.branch_name = data.branch_name
             last_submission.evidence_file = data.evidence_file
             last_submission.status = "PENDING"
@@ -69,6 +70,7 @@ class TaskSubmissionRepository:
             task_id=task_id,
             student_id=student_id,
             submission_link=data.submission_link,
+            link_deploy=data.link_deploy,
             branch_name=data.branch_name,
             evidence_file=data.evidence_file,
             status="PENDING",
@@ -187,6 +189,7 @@ class TaskSubmissionRepository:
                 task_id=submission.task.id,
                 status=submission.status,
                 submission_link=submission.submission_link,
+                link_deploy=submission.link_deploy,
                 branch_name=submission.branch_name,
                 evidence_file=submission.evidence_file,
                 feedback=submission.feedback,
@@ -269,6 +272,7 @@ class TaskSubmissionRepository:
                 task_id=submission.task.id,
                 status=submission.status,
                 submission_link=submission.submission_link,
+                link_deploy=submission.link_deploy,
                 branch_name=submission.branch_name,
                 evidence_file=submission.evidence_file,
                 feedback=submission.feedback,

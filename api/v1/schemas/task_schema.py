@@ -12,6 +12,7 @@ from api.v1.schemas.student_schema import StudentRead
 class TaskSubmissionCreate(BaseModel):
     task_id: str
     submission_link: str
+    link_deploy: Optional[str] = None
     branch_name: Optional[str]
     evidence_file: Optional[str]  # caminho para arquivo salvo
 
@@ -25,6 +26,7 @@ class TaskSubmissionResponse(BaseModel):
     task_id: str
     student_id: str
     submission_link: str
+    link_deploy: Optional[str]
     branch_name: Optional[str]
     evidence_file: Optional[str]
     status: str
@@ -48,6 +50,7 @@ class StudentSubmissionResponse(BaseModel):
     id: str
     task_id: str
     submission_link: Optional[str]
+    link_deploy: Optional[str]
     branch_name: Optional[str]
     evidence_file: Optional[str]
     status: str
@@ -86,6 +89,7 @@ class SubmissionWithDeliverable(BaseModel):
     id: str
     status: str
     submission_link: Optional[str]
+    link_deploy: Optional[str]
     branch_name: Optional[str]
     evidence_file: Optional[str]
     feedback: Optional[str]

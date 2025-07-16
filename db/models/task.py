@@ -62,6 +62,7 @@ class TaskSubmission(Base):
     validated_by = Column(String(36), ForeignKey("tkse.enterprises.id"), nullable=True)
 
     submission_link = Column(String(500), nullable=True)
+    link_deploy = Column(String(500), nullable=True)
     branch_name = Column(String(255), nullable=True)
     evidence_file = Column(String(500), nullable=True)
     status = Column(String(20), default="PENDING")
