@@ -53,7 +53,7 @@ class TaskSubmissionRepository:
             last_submission.evidence_file = data.evidence_file
             last_submission.status = "PENDING"
             last_submission.feedback = ""
-            last_submission.validated_by = ""
+            last_submission.validated_by = None
             last_submission.submitted_at = datetime.utcnow()
 
             task.status = "PENDING"
@@ -80,8 +80,6 @@ class TaskSubmissionRepository:
 
         task.status = "PENDING"
         deliverable.status = "IN_DEVELOPMENT"
-        # last_submission.feedback = ""
-        # last_submission.validated_by = ""
 
         db.commit()
         db.refresh(submission)
