@@ -82,7 +82,7 @@ def create_new_student(
     email: str = Form(...),
     password: str = Form(...),
     phone: str = Form(...),
-    role: str = Form(...),
+    role: str = Form(None),  # Agora permite None
     location: str = Form(...),
     cargo: str = Form(...),
     bio: str = Form(...),
@@ -91,6 +91,9 @@ def create_new_student(
     profile_image: Optional[UploadFile] = File(None),
     db: Session = Depends(get_db),
 ):
+    # Se não vier role, define como "introduction"
+    if not role:
+        role = "introduction"
     form_data = StudentCreateForm(
         name=name,
         email=email,
