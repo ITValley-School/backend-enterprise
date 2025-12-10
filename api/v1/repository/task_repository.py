@@ -5,6 +5,7 @@ from fastapi import HTTPException
 from requests import Session
 from sqlalchemy import func, or_
 from sqlalchemy.orm import joinedload
+import logging
 
 from api.v1.schemas.project_schema import ProjectResponse
 from api.v1.schemas.student_schema import StudentResponse
@@ -13,6 +14,8 @@ from db.models.enterprise import Enterprise
 from db.models.project import Project
 from db.models.student import Student
 from db.models.task import Deliverable, Task, TaskSubmission
+
+logger = logging.getLogger(__name__)
 
 
 class TaskSubmissionRepository:

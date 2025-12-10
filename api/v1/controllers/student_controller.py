@@ -1,6 +1,6 @@
 from typing import List, Optional
 from uuid import UUID
-from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, Query, UploadFile
 from sqlalchemy.orm import Session
 from api.v1.repository.dashboard_repository import StudentDashboardRepository
 from api.v1.repository.task_repository import TaskSubmissionRepository
@@ -213,8 +213,25 @@ def get_student_deliverables(student_id: UUID, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
     
 @router.post("/{student_id}/submissions", response_model=TaskSubmissionResponse)
-def submit_task(student_id: UUID, data: TaskSubmissionCreate, db: Session = Depends(get_db)):
-    return TaskSubmissionRepository.create_submission(db, student_id, data)
+async def submit_task(
+    student_id: UUID, 
+    data: TaskSubmissionCreate, 
+    db: Session = Depends(get_db),
+    background_tasks: BackgroundTasks = BackgroundTasks()
+):
+    submission = TaskSubmissionRepository.create_submission(db, student_id, data)
+    
+    # Envia notificação WhatsApp em background (não bloqueia a resposta)
+    from api.v1.services.submission_notification_service import send_submission_notification
+    background_tasks.add_task(
+        send_submission_notification,
+        db=db,
+        submission_id=submission.id,
+        student_id=str(student_id),
+        task_id=str(data.task_id)
+    )
+    
+    return submission
 
 @router.get("/{student_id}/submissions", response_model=List[StudentSubmissionResponse])
 def get_student_submissions(student_id: UUID, db: Session = Depends(get_db)):
